@@ -117,4 +117,153 @@ describe("GameBoard class", () => {
       expect(board.validatePlacement(5, 9, ship5)).toBe(false);
     });
   });
+
+  describe("receiveAttack", () => {
+    test.each([
+      [-1, 4],
+      [4, -1],
+      [10, 3],
+      [3, 10],
+    ])("invalid positions returns false", (row, col) => {
+      expect(board.receiveAttack(row, col)).toBe(undefined);
+    });
+
+    test.each([
+      [0, 0],
+      [3, 3],
+      [6, 7],
+      [9, 9],
+    ])("attacking empty positions returns 'missed'", (row, col) => {
+      board.placeShip(4, 5, ship);
+      board.placeShip(4, 6, ship);
+      board.placeShip(4, 7, ship);
+      board.placeShip(4, 8, ship);
+
+      expect(board.receiveAttack(row, col)).toBe("missed");
+    });
+
+    test("attacking empty positions injects 'X' in that position", () => {
+      board.receiveAttack(0, 0);
+      board.receiveAttack(3, 3);
+      board.receiveAttack(4, 4);
+      board.receiveAttack(10, 10);
+      expect(board.missedIndices).toEqual([
+        [0, 0],
+        [3, 3],
+        [4, 4],
+      ]);
+    });
+    test.each([
+      [0, 0],
+      [3, 3],
+      [6, 7],
+      [9, 9],
+    ])("attacking ship positions returns 'hit'", (row, col) => {
+      const ship2 = new Ship(3);
+      const ship3 = new Ship(3);
+      const ship4 = new Ship(3);
+
+      board.placeShip(0, 0, ship);
+      board.placeShip(3, 3, ship2);
+      board.placeShip(6, 7, ship3);
+      board.placeShip(9, 9, ship4);
+
+      expect(board.receiveAttack(row, col)).toBe("hit");
+    });
+    test("confirm correct ship placements", () => {
+      const ship2 = new Ship(3);
+      const ship3 = new Ship(3);
+      const ship4 = new Ship(5);
+
+      board.placeShip(0, 0, ship);
+      board.placeShip(0, 1, ship);
+      board.placeShip(0, 2, ship);
+
+      board.placeShip(3, 3, ship2);
+      board.placeShip(4, 3, ship2);
+      board.placeShip(2, 3, ship2);
+
+      board.placeShip(6, 7, ship3);
+      board.placeShip(7, 7, ship3);
+
+      board.placeShip(9, 9, ship4);
+      board.placeShip(8, 9, ship4);
+      board.placeShip(7, 9, ship4);
+      board.placeShip(6, 9, ship4);
+      board.placeShip(5, 9, ship4);
+
+      expect(board.getShipIndices(ship)).toEqual([
+        [0, 0],
+        [0, 1],
+        [0, 2],
+      ]);
+      expect(board.getShipIndices(ship2)).toEqual([
+        [3, 3],
+        [4, 3],
+        [2, 3],
+      ]);
+      expect(board.getShipIndices(ship3)).toEqual([
+        [6, 7],
+        [7, 7],
+      ]);
+      expect(board.getShipIndices(ship4)).toEqual([
+        [9, 9],
+        [8, 9],
+        [7, 9],
+        [6, 9],
+        [5, 9],
+      ]);
+    });
+
+    test("sunk ship should print 'S'", () => {
+      board.placeShip(0, 0, ship);
+      board.placeShip(0, 1, ship);
+      board.placeShip(0, 2, ship);
+
+      board.receiveAttack(0, 0);
+      board.receiveAttack(0, 1);
+      board.receiveAttack(0, 2);
+
+      expect(board.getBoardValues(0, 0)).toBe("S");
+      expect(board.getBoardValues(0, 1)).toBe("S");
+      expect(board.getBoardValues(0, 2)).toBe("S");
+    });
+
+    test("all shipd sunk", () => {
+      const ship2 = new Ship(3);
+      const ship3 = new Ship(2);
+      const ship4 = new Ship(5);
+      board.placeShip(0, 0, ship);
+      board.placeShip(0, 1, ship);
+      board.placeShip(0, 2, ship);
+
+      board.placeShip(3, 3, ship2);
+      board.placeShip(4, 3, ship2);
+      board.placeShip(2, 3, ship2);
+
+      board.placeShip(6, 7, ship3);
+      board.placeShip(7, 7, ship3);
+
+      board.placeShip(9, 9, ship4);
+      board.placeShip(8, 9, ship4);
+      board.placeShip(7, 9, ship4);
+      board.placeShip(6, 9, ship4);
+      board.placeShip(5, 9, ship4);
+
+      board.receiveAttack(0, 0);
+      board.receiveAttack(0, 1);
+      board.receiveAttack(0, 2);
+      board.receiveAttack(3, 3);
+      board.receiveAttack(4, 3);
+      board.receiveAttack(2, 3);
+      board.receiveAttack(6, 7);
+      board.receiveAttack(7, 7);
+      board.receiveAttack(9, 9);
+      board.receiveAttack(8, 9);
+      board.receiveAttack(7, 9);
+      board.receiveAttack(6, 9);
+      board.receiveAttack(5, 9);
+      expect(board.allSunk()).toBe(true)
+    })
+  });
 });

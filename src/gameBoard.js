@@ -1,25 +1,36 @@
+import { Ship } from "./ship.js";
+
 export class GameBoard {
   #board = Array.from({ length: 10 }, () => Array(10).fill(""));
   #missIdx = [];
   #ships = new Set();
+
   placeShip(row, col, ship) {
     if (this.validatePlacement(row, col, ship)) {
       this.#board[row][col] = ship;
-      this.#ships.add(ship);
+      const peicesIdx = [];
+      peicesIdx.push({ row, col });
+      const shipObj = [...this.#ships].find(
+        (currShip) => currShip.ship === ship,
+      );
+      if (shipObj) shipObj.pos.push({ row, col });
+      else this.#ships.add({ ship, pos: peicesIdx });
     }
   }
 
   validatePlacement(row, col, ship) {
     if (row > 9 || row < 0 || col > 9 || col < 0 || this.#board[row][col])
       return false;
-    const peicesIdx = [];
-    for (let i = 0; i < 10; i++) {
-      for (let j = 0; j < 10; j++) {
-        if (this.#board[i][j] === ship) {
-          peicesIdx.push({ row: i, col: j });
-        }
-      }
-    }
+    const shipObj = [...this.#ships].find((currShip) => currShip.ship === ship);
+    if (shipObj === undefined) return true;
+    const peicesIdx = shipObj.pos;
+    // for (let i = 0; i < 10; i++) {
+    //   for (let j = 0; j < 10; j++) {
+    //     if (this.#board[i][j] === ship) {
+    //       peicesIdx.push({ row: i, col: j });
+    //     }
+    //   }
+    // }
     if (peicesIdx.length >= ship.length) return false;
     const peicesIdxLenght = peicesIdx.length;
     if (peicesIdxLenght === 1) {
@@ -67,14 +78,36 @@ export class GameBoard {
     if (attackPos === "") {
       this.#missIdx.push([row, col]);
       this.#board[row][col] = "X";
-    } else if (attackPos !== "X"){
+      return "missed";
+    } else if ((attackPos !== "X") & (attackPos !== "S")) {
       attackPos.hit();
-      if(attackPos.isSunk()) 
-      
+      this.#modifySunkShips(attackPos);
+    }
+    return "hit";
+  }
+
+  #modifySunkShips(attackPos) {
+    if (attackPos.isSunk()) {
+      const sunkIdx = [...this.#ships].find(
+        (currShip) => currShip.ship === attackPos,
+      ).pos;
+      sunkIdx.forEach(({ row, col }) => (this.#board[row][col] = "S"));
     }
   }
 
+  allSunk() {
+    return [...this.#ships].every(({ ship }) => ship.isSunk());
+  }
   get missedIndices() {
-    return this.#missIdx;
+    return [...this.#missIdx];
+  }
+  getShipIndices(ship) {
+    return [...this.#ships]
+      .find((currShip) => currShip.ship === ship)
+      .pos.map(({ row, col }) => [row, col]);
+  }
+
+  getBoardValues(row, col) {
+    return this.#board[row][col];
   }
 }
