@@ -4,7 +4,7 @@ export class GameBoard {
   #board = Array.from({ length: 10 }, () => Array(10).fill(""));
   #missIdx = [];
   #ships = new Set();
-
+  #hitIdx = [];
   placeShip(row, col, ship) {
     if (this.validatePlacement(row, col, ship)) {
       this.#board[row][col] = ship;
@@ -80,16 +80,18 @@ export class GameBoard {
       this.#board[row][col] = "X";
       return "missed";
     } else if ((attackPos !== "X") & (attackPos !== "S")) {
+      this.#hitIdx.push([row, col]);
       attackPos.hit();
       this.#modifySunkShips(attackPos);
+      return "hit";
     }
-    return "hit";
   }
 
   #modifySunkShips(attackPos) {
     if (attackPos.isSunk()) {
       const sunkIdx = [...this.#ships].find(
-        (currShip) => currShip.ship === attackPos).pos;
+        (currShip) => currShip.ship === attackPos,
+      ).pos;
       sunkIdx.forEach(({ row, col }) => (this.#board[row][col] = "S"));
     }
   }
@@ -99,6 +101,14 @@ export class GameBoard {
   }
   get missedIndices() {
     return [...this.#missIdx];
+  }
+
+  get attackedIndices() {
+    return [...this.#missIdx, ...this.#hitIdx];
+  }
+
+  get hitIndices () {
+    return [...this.#hitIdx];
   }
   getShipIndices(ship) {
     return [...this.#ships]
@@ -118,9 +128,10 @@ export class GameBoard {
   }
 
   removeShip(ship) {
-    const deleteShip = [...this.#ships].find((currShip) => currShip.ship === ship).pos;
+    const deleteShip = [...this.#ships].find(
+      (currShip) => currShip.ship === ship,
+    ).pos;
     deleteShip.forEach(({ row, col }) => (this.#board[row][col] = ""));
     this.#ships.delete([...this.#ships].find((entry) => entry.ship === ship));
   }
 }
-

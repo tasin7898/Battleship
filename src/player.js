@@ -1,7 +1,9 @@
+import { val } from "thingies";
 import { GameBoard } from "./gameBoard.js";
 import { Ship } from "./ship.js";
 export class Player {
   #score;
+
   constructor(name) {
     this.name = name;
     this.board = new GameBoard();
@@ -18,6 +20,8 @@ export class Player {
 }
 
 export class ComputerPlayer extends Player {
+  #queue = [];
+  #visited = [];
   constructor(name = "Computer") {
     super(name);
   }
@@ -33,7 +37,7 @@ export class ComputerPlayer extends Player {
     //console.log(ships)
     const shuffledShips = this.#shuffle(ships);
     //console.log(shuffledShips);
-   // console.log(this.board.shipObj)
+    // console.log(this.board.shipObj)
     shuffledShips.forEach((ship) => {
       //console.log(ship)
       //console.log(this.board.getShipsIdx(ship))
@@ -47,14 +51,20 @@ export class ComputerPlayer extends Player {
             row = Math.floor(Math.random() * 10);
             col = Math.floor(Math.random() * 10);
             run++;
-            if (run > 500) {
+            if (run > 50) {
               this.board.removeShip(ship);
               //console.log(this.board.getShipsIdx(ship));
               run = 0;
               break;
             }
             //console.log(row, col)
-          } while (row > 9 || row < 0 || col > 9 || col < 0 || this.board.getBoardValues(row, col));
+          } while (
+            row > 9 ||
+            row < 0 ||
+            col > 9 ||
+            col < 0 ||
+            this.board.getBoardValues(row, col)
+          );
           this.board.placeShip(row, col, ship);
           //console.log(this.board.getShipsIdx(ship).pos);
         }
@@ -79,15 +89,21 @@ export class ComputerPlayer extends Player {
               col = idx.col;
               //console.log(row, col);
               run++;
-              if (run > 500) {
+              if (run > 50) {
                 this.board.removeShip(ship);
-              //console.log(this.board.getShipsIdx(ship));
+                //console.log(this.board.getShipsIdx(ship));
 
                 run = 0;
                 stuck = true;
                 break;
               }
-            } while (row > 9 || row < 0 || col > 9 || col < 0 || this.board.getBoardValues(row, col));
+            } while (
+              row > 9 ||
+              row < 0 ||
+              col > 9 ||
+              col < 0 ||
+              this.board.getBoardValues(row, col)
+            );
             if (stuck) break;
             this.board.placeShip(row, col, ship);
           }
@@ -106,8 +122,8 @@ export class ComputerPlayer extends Player {
                 row = idx.row;
                 col = idx.col;
                 run++;
-                if (run > 500) {
-              //console.log(this.board.getShipsIdx(ship));
+                if (run > 50) {
+                  //console.log(this.board.getShipsIdx(ship));
 
                   this.board.removeShip(ship);
 
@@ -115,7 +131,13 @@ export class ComputerPlayer extends Player {
                   stuck = true;
                   break;
                 }
-              } while (row > 9 || row < 0 || col > 9 || col < 0 || this.board.getBoardValues(row, col));
+              } while (
+                row > 9 ||
+                row < 0 ||
+                col > 9 ||
+                col < 0 ||
+                this.board.getBoardValues(row, col)
+              );
               if (stuck) break;
               this.board.placeShip(row, col, ship);
             }
@@ -134,15 +156,21 @@ export class ComputerPlayer extends Player {
                 row = idx.row;
                 col = idx.col;
                 run++;
-                if (run > 500) {
+                if (run > 50) {
                   this.board.removeShip(ship);
-              //console.log(this.board.getShipsIdx(ship));
+                  //console.log(this.board.getShipsIdx(ship));
 
                   run = 0;
                   stuck = true;
                   break;
                 }
-              } while (row > 9 || row < 0 || col > 9 || col < 0 || this.board.getBoardValues(row, col));
+              } while (
+                row > 9 ||
+                row < 0 ||
+                col > 9 ||
+                col < 0 ||
+                this.board.getBoardValues(row, col)
+              );
               if (stuck) break;
 
               this.board.placeShip(row, col, ship);
@@ -157,7 +185,13 @@ export class ComputerPlayer extends Player {
         done = true;
       }
     });
-    console.log(this.board.shipObj[0].pos);
+    console.log(
+      JSON.stringify(this.board.shipObj, null, 2),
+      this.board.shipObj[0].ship.name,
+      this.board.shipObj[1].ship.name,
+      this.board.shipObj[2].ship.name,
+      this.board.shipObj[3].ship.name,
+    );
   }
 
   #shuffle(arr) {
@@ -168,6 +202,49 @@ export class ComputerPlayer extends Player {
       arr[j] = temp;
     }
     return arr;
+  }
+
+  attack() {
+    let row,
+      col,
+      ships = [...this.board.shipObj.ship];
+    const attackedPos = this.board.attackedIndices;
+    const hitPos = this.board.hitIndices;
+
+    if (hitPos.length === 0) {
+      row = Math.floor(Math.random() * 10);
+      col = Math.floor(Math.random() * 10);
+      this.board.receiveAttack(row, col);
+      return;
+    }
+    if (this.#queue.length === 0) {
+      if (hitPos.length === 1) {
+        this.#queue.push(hitPos[0]);
+      }
+    }
+    if (hitPos.length >= 1) {
+      //if(){}
+      let [row, col] = queue.shift();
+      this.#visited.push([row, col]);
+      const possibleAttacks = this.#paths([row, col], visited);
+      possibleAttacks.forEach((attack) => queue.push(attack));
+      [row, col] = queue.shift();
+      this.board.receiveAttack(row, col);
+    }
+  }
+
+  #paths([row, col], visited) {
+    return [
+      [row + 1, col],
+      [row - 1, col],
+      [row, col + 1],
+      [row, col - 1],
+    ]
+      .filter(([a, b]) => a <= 9 && a >= 0 && b <= 9 && b >= 0)
+      .filter(
+        (entry) =>
+          !visited.some((item) => item.every((val, idx) => val === entry[idx])),
+      );
   }
 }
 

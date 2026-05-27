@@ -13,7 +13,14 @@ describe("Player class", () => {
         computerPlayer.placeRandShips();
         expect(computerPlayer.board.shipObj.length).toBe(4);
       });
+      test("check if ships have been placed at correct indices on the board", () => {
+        computerPlayer.placeRandShips();
+        computerPlayer.board.shipObj.forEach(({ ship, pos }) =>
+          pos.forEach(({ row, col }) =>
+            expect(computerPlayer.board.getBoardValues(row, col)).toBe(ship),
+          ),
+        );
+      });
     });
-    
   });
 });
