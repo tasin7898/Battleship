@@ -2,7 +2,6 @@ import { Ship } from "./ship.js";
 
 describe("ship class", () => {
   let ship1;
-  
   beforeEach(() => {
     ship1 = new Ship(3);
   });

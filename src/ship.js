@@ -1,7 +1,9 @@
 export class Ship {
   #hits = 0;
-  #length
-  constructor(length) {
+  #length;
+  #name;
+  constructor(length, name = "shipX") {
+    this.#name = name;
     this.#length = length;
   }
 
@@ -16,5 +18,9 @@ export class Ship {
   }
   get length () {
     return this.#length;
+  }
+
+  get name () {
+    return this.#name;
   }
 }

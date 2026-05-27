@@ -206,6 +206,10 @@ describe("GameBoard class", () => {
         [6, 7],
         [7, 7],
       ]);
+      // expect(board.getShipsIdx(ship3)).toEqual([
+      //   { row: 6, col: 7 },
+      //   { row: 7, col: 7 },
+      // ]);
       expect(board.getShipIndices(ship4)).toEqual([
         [9, 9],
         [8, 9],
@@ -263,7 +267,21 @@ describe("GameBoard class", () => {
       board.receiveAttack(7, 9);
       board.receiveAttack(6, 9);
       board.receiveAttack(5, 9);
-      expect(board.allSunk()).toBe(true)
-    })
+      expect(board.allSunk()).toBe(true);
+    });
   });
+  describe("removeShip", () => {
+  test("removes ship from #ships and clears board positions", () => {
+    board.placeShip(0, 0, ship);
+    board.placeShip(0, 1, ship);
+    board.placeShip(0, 2, ship);
+
+    board.removeShip(ship);
+
+    expect(board.getShipsIdx(ship)).toBe(undefined);
+    expect(board.getBoardValues(0, 0)).toBe("");
+    expect(board.getBoardValues(0, 1)).toBe("");
+    expect(board.getBoardValues(0, 2)).toBe("");
+  });
+});
 });

@@ -89,8 +89,7 @@ export class GameBoard {
   #modifySunkShips(attackPos) {
     if (attackPos.isSunk()) {
       const sunkIdx = [...this.#ships].find(
-        (currShip) => currShip.ship === attackPos,
-      ).pos;
+        (currShip) => currShip.ship === attackPos).pos;
       sunkIdx.forEach(({ row, col }) => (this.#board[row][col] = "S"));
     }
   }
@@ -107,7 +106,21 @@ export class GameBoard {
       .pos.map(({ row, col }) => [row, col]);
   }
 
+  getShipsIdx(ship) {
+    return [...this.#ships].find((currShip) => currShip.ship === ship);
+  }
   getBoardValues(row, col) {
     return this.#board[row][col];
   }
+
+  get shipObj() {
+    return [...this.#ships];
+  }
+
+  removeShip(ship) {
+    const deleteShip = [...this.#ships].find((currShip) => currShip.ship === ship).pos;
+    deleteShip.forEach(({ row, col }) => (this.#board[row][col] = ""));
+    this.#ships.delete([...this.#ships].find((entry) => entry.ship === ship));
+  }
 }
+
