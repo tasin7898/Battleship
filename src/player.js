@@ -205,35 +205,37 @@ export class ComputerPlayer extends Player {
   }
 
   attack() {
-    let row,
-      col,
-      ships = [...this.board.shipObj.ship];
     const attackedPos = this.board.attackedIndices;
-    const hitPos = this.board.hitIndices;
+    const activeHitPos = this.board.activeHitIndices;
 
-    if (hitPos.length === 0) {
-      row = Math.floor(Math.random() * 10);
-      col = Math.floor(Math.random() * 10);
+    if (activeHitPos.length === 0 && this.#queue.length === 0) {
+      let row, col;
+      do {
+        row = Math.floor(Math.random() * 10);
+        col = Math.floor(Math.random() * 10);
+      } while (attackedPos.some(([r, c]) => r === row && c === col));
       this.board.receiveAttack(row, col);
       return;
     }
-    if (this.#queue.length === 0) {
-      if (hitPos.length === 1) {
-        this.#queue.push(hitPos[0]);
-      }
+
+    if (this.#queue.length === 0 && activeHitPos.length >= 1) {
+      const seed = activeHitPos[activeHitPos.length - 1];
+      this.#visited.push(seed);
+      this.#paths(seed, this.#visited, attackedPos).forEach((n) => this.#queue.push(n));
     }
-    if (hitPos.length >= 1) {
-      //if(){}
-      let [row, col] = queue.shift();
-      this.#visited.push([row, col]);
-      const possibleAttacks = this.#paths([row, col], visited);
-      possibleAttacks.forEach((attack) => queue.push(attack));
-      [row, col] = queue.shift();
-      this.board.receiveAttack(row, col);
+
+    let [row, col] = this.#queue.shift();
+    this.#visited.push([row, col]);
+    const possibleAttacks = this.#paths([row, col], this.#visited, attackedPos);
+    const result = this.board.receiveAttack(row, col);
+    if (result === "sunk") {
+      this.#queue = [];
+    } else if (result === "hit") {
+      possibleAttacks.forEach((a) => this.#queue.push(a));
     }
   }
 
-  #paths([row, col], visited) {
+  #paths([row, col], visited, attackedPos) {
     return [
       [row + 1, col],
       [row - 1, col],
@@ -241,10 +243,8 @@ export class ComputerPlayer extends Player {
       [row, col - 1],
     ]
       .filter(([a, b]) => a <= 9 && a >= 0 && b <= 9 && b >= 0)
-      .filter(
-        (entry) =>
-          !visited.some((item) => item.every((val, idx) => val === entry[idx])),
-      );
+      .filter(([row, col]) => !visited.some(([r, c]) => r === row && c === col))
+      .filter(([row, col]) => !attackedPos.some(([r, c]) => r === row && c === col));
   }
 }
 

@@ -22,5 +22,43 @@ describe("Player class", () => {
         );
       });
     });
+    describe("attack", () => {
+      beforeEach(() => {
+        computerPlayer.placeRandShips();
+      });
+
+      test("never attacks the same cell twice", () => {
+        for (let i = 0; i < 50; i++) computerPlayer.attack();
+        const attacked = computerPlayer.board.attackedIndices;
+        const unique = new Set(attacked.map(([r, c]) => `${r},${c}`));
+        expect(unique.size).toBe(attacked.length);
+      });
+
+      test("sinks all ships within 100 moves", () => {
+        for (let i = 0; i < 80; i++) {
+          computerPlayer.attack();
+          if (computerPlayer.board.allSunk()) break;
+        }
+        expect(computerPlayer.board.allSunk()).toBe(true);
+      });
+
+      test("each attack adds exactly one attacked cell", () => {
+        for (let i = 1; i <= 10; i++) {
+          computerPlayer.attack();
+          expect(computerPlayer.board.attackedIndices.length).toBe(i);
+        }
+      });
+    });
   });
 });
+
+
+
+
+
+
+
+
+
+
+
