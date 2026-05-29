@@ -6,6 +6,7 @@ export class GameBoard {
   #ships = new Set();
   #hitIdx = [];
   #activeHitIdx = [];
+  #attackedIdx = [];
   placeShip(row, col, ship) {
     if (this.validatePlacement(row, col, ship)) {
       this.#board[row][col] = ship;
@@ -78,11 +79,16 @@ export class GameBoard {
     const attackPos = this.#board[row][col];
     if (attackPos === "") {
       this.#missIdx.push([row, col]);
+      this.#attackedIdx.push([row, col]);
       this.#board[row][col] = "X";
+      //console.log("missed", [row, col])
       return "missed";
+      
     } else if ((attackPos !== "X") & (attackPos !== "S")) {
       this.#hitIdx.push([row, col]);
       this.#activeHitIdx.push([row, col]);
+      this.#attackedIdx.push([row, col]);
+      console.log("hit", [row, col])
       attackPos.hit();
       if (this.#modifySunkShips(attackPos)) return "sunk";
       return "hit";
@@ -97,9 +103,12 @@ export class GameBoard {
       sunkIdx.forEach(({ row, col }) => {
         this.#board[row][col] = "S";
       });
+      //console.log("sunkkkkkkk", sunkIdx);
+      //console.log("activeeeeeeeee", this.#activeHitIdx)
       this.#activeHitIdx = this.#activeHitIdx.filter(
         ([r, c]) => !sunkIdx.some(({ row, col }) => r === row && c === col),
       );
+      //console.log("activeeeeeeeee", this.#activeHitIdx)
 
       return true;
     }
@@ -113,7 +122,7 @@ export class GameBoard {
   }
 
   get attackedIndices() {
-    return [...this.#missIdx, ...this.#hitIdx];
+    return [...this.#attackedIdx];
   }
 
   get hitIndices() {

@@ -1,6 +1,7 @@
-import { val } from "thingies";
+
 import { GameBoard } from "./gameBoard.js";
 import { Ship } from "./ship.js";
+
 export class Player {
   #score;
 
@@ -22,6 +23,8 @@ export class Player {
 export class ComputerPlayer extends Player {
   #queue = [];
   #visited = [];
+  #backTrack = false;
+  #hitAnotherShip = false;
   constructor(name = "Computer") {
     super(name);
   }
@@ -33,14 +36,8 @@ export class ComputerPlayer extends Player {
       new Ship(3, "Submarine"),
       new Ship(2, "Patrol_Boat"),
     ];
-    //console.log(this.board.getShipsIdx(ships[0]))
-    //console.log(ships)
     const shuffledShips = this.#shuffle(ships);
-    //console.log(shuffledShips);
-    // console.log(this.board.shipObj)
     shuffledShips.forEach((ship) => {
-      //console.log(ship)
-      //console.log(this.board.getShipsIdx(ship))
       let done = false;
       let stuck = false;
       while (!done) {
@@ -53,11 +50,9 @@ export class ComputerPlayer extends Player {
             run++;
             if (run > 50) {
               this.board.removeShip(ship);
-              //console.log(this.board.getShipsIdx(ship));
               run = 0;
               break;
             }
-            //console.log(row, col)
           } while (
             row > 9 ||
             row < 0 ||
@@ -66,10 +61,7 @@ export class ComputerPlayer extends Player {
             this.board.getBoardValues(row, col)
           );
           this.board.placeShip(row, col, ship);
-          //console.log(this.board.getShipsIdx(ship).pos);
         }
-        //console.log(this.board.getShipsIdx(ship));
-
         let pos = this.board.getShipsIdx(ship).pos;
 
         while (pos.length < ship.length) {
@@ -87,12 +79,9 @@ export class ComputerPlayer extends Player {
               const idx = possibleIdx[Math.floor(Math.random() * 4)];
               row = idx.row;
               col = idx.col;
-              //console.log(row, col);
               run++;
               if (run > 50) {
                 this.board.removeShip(ship);
-                //console.log(this.board.getShipsIdx(ship));
-
                 run = 0;
                 stuck = true;
                 break;
@@ -123,8 +112,6 @@ export class ComputerPlayer extends Player {
                 col = idx.col;
                 run++;
                 if (run > 50) {
-                  //console.log(this.board.getShipsIdx(ship));
-
                   this.board.removeShip(ship);
 
                   run = 0;
@@ -158,8 +145,6 @@ export class ComputerPlayer extends Player {
                 run++;
                 if (run > 50) {
                   this.board.removeShip(ship);
-                  //console.log(this.board.getShipsIdx(ship));
-
                   run = 0;
                   stuck = true;
                   break;
@@ -177,7 +162,6 @@ export class ComputerPlayer extends Player {
             }
           }
         }
-        //console.log(stuck)
         if (stuck) {
           stuck = false;
           continue;
@@ -204,38 +188,113 @@ export class ComputerPlayer extends Player {
     return arr;
   }
 
+  // attack() {
+  //   const attackedPos = this.board.attackedIndices;
+  //   const activeHitPos = this.board.activeHitIndices;
+
+  //   if (activeHitPos.length === 0 && this.#queue.length === 0) {
+  //     let row, col;
+  //     do {
+  //       row = Math.floor(Math.random() * 10);
+  //       col = Math.floor(Math.random() * 10);
+  //     } while (attackedPos.some(([r, c]) => r === row && c === col));
+  //     this.board.receiveAttack(row, col);
+  //     return;
+  //   }
+
+  //   if (this.#queue.length === 0 && activeHitPos.length >= 1) {
+  //     const seed = activeHitPos[activeHitPos.length - 1];
+  //     this.#visited.push(seed);
+  //     this.#paths(seed, this.#visited, attackedPos).forEach((n) => this.#queue.push(n));
+  //   }
+
+  //   let [row, col] = this.#queue.shift();
+  //   this.#visited.push([row, col]);
+  //   const possibleAttacks = this.#paths([row, col], this.#visited, attackedPos);
+  //   const result = this.board.receiveAttack(row, col);
+  //   if (result === "sunk") {
+  //     this.#queue = [];
+  //   } else if (result === "hit") {
+  //     possibleAttacks.forEach((a) => this.#queue.push(a));
+  //   }
+  // }
   attack() {
     const attackedPos = this.board.attackedIndices;
     const activeHitPos = this.board.activeHitIndices;
-
-    if (activeHitPos.length === 0 && this.#queue.length === 0) {
+    let result;
+    if (activeHitPos.length === 0) {
       let row, col;
       do {
         row = Math.floor(Math.random() * 10);
         col = Math.floor(Math.random() * 10);
-      } while (attackedPos.some(([r, c]) => r === row && c === col));
+      } while (attackedPos.some(([r, c]) => r === row && c === col || (row +col) % 2 !== 0));
       this.board.receiveAttack(row, col);
       return;
     }
+    if (activeHitPos.length === 1) {
+      const [row, col] = this.#shuffle(
+        this.#paths(activeHitPos[0], attackedPos),
+      )[0];
+      //console.log("afterHit activeHitPos.length === 1", [row, col])
+      //console.log("attackedPos activeHitPos.length === 1", attackedPos)
+      this.board.receiveAttack(row, col);
+      return;
+    }
+    const [r0, c0] = activeHitPos[0];
+    const [r1, c1] = activeHitPos[activeHitPos.length - 2];
+    const [r2, c2] = activeHitPos[activeHitPos.length - 1];
+    const rowDiff = r2 - r1;
+    const colDiff = c2 - c1;
+    const nextRow = r2 + rowDiff;
+    const nextCol = c2 + colDiff;
 
-    if (this.#queue.length === 0 && activeHitPos.length >= 1) {
-      const seed = activeHitPos[activeHitPos.length - 1];
-      this.#visited.push(seed);
-      this.#paths(seed, this.#visited, attackedPos).forEach((n) => this.#queue.push(n));
+    if (
+      nextRow > 9 ||
+      nextRow < 0 ||
+      nextCol > 9 ||
+      nextCol < 0 ||
+      attackedPos.some(([r, c]) => r === nextRow && c === nextCol)
+    ) {
+      this.#backTrack = true;
     }
 
-    let [row, col] = this.#queue.shift();
-    this.#visited.push([row, col]);
-    const possibleAttacks = this.#paths([row, col], this.#visited, attackedPos);
-    const result = this.board.receiveAttack(row, col);
-    if (result === "sunk") {
-      this.#queue = [];
-    } else if (result === "hit") {
-      possibleAttacks.forEach((a) => this.#queue.push(a));
+    if (this.#backTrack) {
+      const nextRow = r0 - rowDiff;
+      const nextCol = c0 - colDiff;
+      if (
+        nextRow > 9 ||
+        nextRow < 0 ||
+        nextCol > 9 ||
+        nextCol < 0 ||
+        attackedPos.some(([r, c]) => r === nextRow && c === nextCol)
+      ) {
+        this.#hitAnotherShip = true;
+        this.#backTrack = false;
+      }
+      if (this.#backTrack) {
+        result = this.board.receiveAttack(nextRow, nextCol);
+        if (result === "miss") {
+          this.#hitAnotherShip = true;
+          this.#backTrack = false;
+          return;
+        }
+        if (result === "sunk" || result === "hit") {
+          this.#backTrack = false;
+          return;
+        }
+      }
     }
+    if (this.#hitAnotherShip) {
+      const [row, col] = this.#shuffle(this.#paths([r2, c2], attackedPos))[0];
+      //console.log([row, col]);
+      this.board.receiveAttack(row, col);
+      this.#hitAnotherShip = false;
+      return;
+    }
+    result = this.board.receiveAttack(nextRow, nextCol);
+    if (result === "miss") this.#backTrack = true;
   }
-
-  #paths([row, col], visited, attackedPos) {
+  #paths([row, col], attackedPos) {
     return [
       [row + 1, col],
       [row - 1, col],
@@ -243,11 +302,30 @@ export class ComputerPlayer extends Player {
       [row, col - 1],
     ]
       .filter(([a, b]) => a <= 9 && a >= 0 && b <= 9 && b >= 0)
-      .filter(([row, col]) => !visited.some(([r, c]) => r === row && c === col))
-      .filter(([row, col]) => !attackedPos.some(([r, c]) => r === row && c === col));
+      .filter(
+        ([row, col]) => !attackedPos.some(([r, c]) => r === row && c === col),
+      );
   }
 }
 
 const player1 = new Player("tasin");
 const comp = new ComputerPlayer();
 comp.placeRandShips();
+
+// print board
+for (let i = 0; i < 10; i++) {
+  const row = [];
+  for (let j = 0; j < 10; j++) {
+    const val = comp.board.getBoardValues(i, j);
+    row.push(val ? (val.name ?? val) : ".");
+  }
+  console.log(row.join(" "));
+}
+
+let moves = 0;
+while (!comp.board.allSunk()) {
+  comp.attack();
+  moves++;
+  console.log(`Move ${moves}:`, comp.board.attackedIndices.at(-1));
+}
+console.log(`Sunk all ships in ${moves} moves`);

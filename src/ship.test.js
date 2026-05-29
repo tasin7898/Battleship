@@ -25,3 +25,4 @@ describe("ship class", () => {
     expect(ship1.isSunk()).toBe(true);
   });
 });
+

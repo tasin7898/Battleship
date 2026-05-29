@@ -24,3 +24,4 @@ export class Ship {
     return this.#name;
   }
 }
+

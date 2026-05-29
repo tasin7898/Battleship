@@ -35,7 +35,7 @@ describe("Player class", () => {
       });
 
       test("sinks all ships within 100 moves", () => {
-        for (let i = 0; i < 80; i++) {
+        for (let i = 0; i < 70; i++) {
           computerPlayer.attack();
           if (computerPlayer.board.allSunk()) break;
         }
@@ -51,6 +51,15 @@ describe("Player class", () => {
     });
   });
 });
+
+
+
+
+
+
+
+
+
 
 
 
