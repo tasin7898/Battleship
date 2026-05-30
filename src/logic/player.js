@@ -317,9 +317,9 @@ for (let i = 0; i < 10; i++) {
   const row = [];
   for (let j = 0; j < 10; j++) {
     const val = comp.board.getBoardValues(i, j);
-    row.push(val ? (val.name ?? val) : ".");
+    row.push(val ? (val.name[0] ?? val) : ".");
   }
-  console.log(row.join(" "));
+  console.log(row.join("   "));
 }
 
 let moves = 0;

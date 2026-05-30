@@ -1,5 +1,5 @@
-import { GameBoard } from "./gameBoard.js";
-import { Ship } from "./ship.js";
+import { GameBoard } from "../src/logic/gameBoard.js";
+import { Ship } from "../src/logic/ship.js";
 describe("GameBoard class", () => {
   let board, ship;
   beforeEach(() => {

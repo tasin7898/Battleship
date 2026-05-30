@@ -1,0 +1,54 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.game {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 2rem;
+}
+
+.ships-button-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.all-ships-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.board {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.all-scores {
+  display: flex;
+  flex-direction: column;
+  gap : 2rem;
+}
+
+.scores {
+  display: flex;
+  gap: 1rem;
+}
+
+.scores > div {
+  display: flex;
+}
+

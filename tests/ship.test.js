@@ -1,4 +1,4 @@
-import { Ship } from "./ship.js";
+import { Ship } from "../src/logic/ship.js";
 
 describe("ship class", () => {
   let ship1;

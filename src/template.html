@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="header">
+      <div>Battleship</div>
+    </div>
+    <div class="game">
+      <div class="ships-button-container">
+        <div class="all-ships-container"></div>
+        <button class="rotate">⟳ Rotate</button>
+      </div>
+      <div class="boards">
+        <div class="game-board1" data-board="player1"></div>
+        <div class="game-board2" data-board="player2"></div>
+      </div>
+      <div class="all-scores">
+        <div class="scores">
+          <div class="player1">
+            <label>Player1 :</label>
+            <output id="player1-score">0</output>
+          </div>
+          <div class="computer">
+            <label>Computer :</label>
+            <output id="computer-score">0</output>
+          </div>
+        </div>
+        <div class="announcements"></div>
+      </div>
+    </div>
+    <div class="vs-human">Play with a friend</div>
+  </body>
+</html>

@@ -1,4 +1,4 @@
-import { Player, ComputerPlayer } from "./player.js";
+import { Player, ComputerPlayer } from "../src/logic/player.js";
 
 describe("Player class", () => {
   let player1;
