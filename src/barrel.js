@@ -3,4 +3,5 @@ export { GameBoard } from "./logic/gameBoard.js";
 export { Player, ComputerPlayer } from "./logic/player.js";
 export { Game } from "./logic/game.js";
 export { el } from "./ui/dom.js";
-export { renderBoard, renderShips} from "./ui/ui.js"
+export { renderBoard, renderShips, initShips } from "./ui/ui.js";
+export { initEvents } from "./ui/events.js";

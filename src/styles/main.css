@@ -7,6 +7,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  gap: 2rem;
 }
 
 .header {
@@ -18,29 +19,69 @@ body {
 
 .game {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-columns: 1fr 2.5fr 1fr;
   gap: 2rem;
+  align-items: start;
+  flex: 1;
 }
 
 .ships-button-container {
   display: flex;
   flex-direction: column;
+  gap: 1rem;
 }
 
 .all-ships-container {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+}
+.ships {
+  display: flex;
+  gap: 0rem;
+  padding: 0rem;
+  border-left: 0.5px solid black; 
 }
 
-.board {
+.ships.selected {
+  outline: 4px solid aqua;
+}
+.ships > div {
+  border-right: 0.5px solid black;
+  border-bottom: 0.5px solid black;
+  border-top: 0.5px solid black;
+  width: 50px;
+  height: 50px;
+}
+
+.rotate {
+  display: flex;
+  flex-direction: column;
+}
+
+.buttons {
+  padding-top: 1rem;;
   display: flex;
   gap: 1.5rem;
+  justify-content: center;
+}
+button {
+  border-radius: .8rem;
+  border: none;
+  background-color: lightblue;
+  padding: .4rem .6rem;
+}
+.boards {
+  display: flex;
+  gap: 2.5rem;
 }
 
 .all-scores {
   display: flex;
   flex-direction: column;
-  gap : 2rem;
+  gap: 2rem;
 }
 
 .scores {
@@ -52,3 +93,37 @@ body {
   display: flex;
 }
 
+.game-board1,
+.game-board2 {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  gap: 0rem;
+  padding: 0rem;
+
+  border-left: 0.5px solid black;
+  border-top: 0.5px solid black;
+}
+
+.game-board1 > div,
+.game-board2 > div {
+  width: 50px;
+  height: 50px;
+  border-right: 0.5px solid black;
+  border-bottom: 0.5px solid black;
+  justify-content: center;
+  align-items: center;
+}
+
+.red {
+  background-color: rgba(214, 4, 4, 0.842);
+}
+.yellow {
+  background-color: yellow;
+}
+.green {
+  background-color: rgb(9, 170, 9);
+}
+.blue {
+  background-color: rgb(30, 126, 236);
+}

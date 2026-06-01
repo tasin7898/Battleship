@@ -1,4 +1,3 @@
-
 import { GameBoard } from "./gameBoard.js";
 import { Ship } from "./ship.js";
 
@@ -9,6 +8,12 @@ export class Player {
     this.name = name;
     this.board = new GameBoard();
     this.#score = 0;
+    this.ships = {
+      Battleship: new Ship(4, "Battleship"),
+      Destroyer: new Ship(3, "Destroyer"),
+      Submarine: new Ship(3, "Submarine"),
+      Patrol_Boat: new Ship(2, "Patrol_Boat"),
+    };
   }
 
   addScore() {
@@ -227,7 +232,10 @@ export class ComputerPlayer extends Player {
       do {
         row = Math.floor(Math.random() * 10);
         col = Math.floor(Math.random() * 10);
-      } while (attackedPos.some(([r, c]) => r === row && c === col || (row +col) % 2 !== 0));
+      } while (
+        attackedPos.some(([r, c]) => r === row && c === col) ||
+        (row + col) % 2 !== 0
+      );
       this.board.receiveAttack(row, col);
       return;
     }
@@ -285,8 +293,22 @@ export class ComputerPlayer extends Player {
       }
     }
     if (this.#hitAnotherShip) {
-      const [row, col] = this.#shuffle(this.#paths([r2, c2], attackedPos))[0];
+      const paths = this.#shuffle(this.#paths([r2, c2], attackedPos));
+      let row, col;
+
+      if (paths.length === 0) {
+        do {
+          row = Math.floor(Math.random() * 10);
+          col = Math.floor(Math.random() * 10);
+        } while (
+          attackedPos.some(([r, c]) => r === row && c === col) ||
+          (row + col) % 2 !== 0
+        );
+        this.board.receiveAttack(row, col);
+        return;
+      }
       //console.log([row, col]);
+      [row, col] = paths[0];
       this.board.receiveAttack(row, col);
       this.#hitAnotherShip = false;
       return;
