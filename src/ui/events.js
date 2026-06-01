@@ -3,6 +3,7 @@ import {
   resetShipsOrientation,
   toggleHighlightClass,
   placeShipCells,
+  resetBoardAndShips,
 } from "./ui.js";
 import { Player } from "../logic/player.js";
 
@@ -32,6 +33,18 @@ export const initEvents = () => {
       selectedShip.classList.toggle("rotate");
     }
     if (e.target.matches(".reset-button")) resetShipsOrientation();
+    if (e.target.matches(".reset-ships")) {
+      resetBoardAndShips();
+      player1.board.clear();
+    }
+    if (e.target.matches(".confirm-fleet")) {
+      if (
+        !Object.values(player1.ships).every((ship) =>
+          player1.board.getShipsIdx(ship),
+        )
+      )
+        return;
+    }
   });
 
   document.addEventListener("dragstart", (e) => {
@@ -85,9 +98,9 @@ export const initEvents = () => {
     const idx = Number(e.dataTransfer.getData("idx"));
     const orientation = e.dataTransfer.getData("orientation");
     const ship = player1.ships[shipName];
-    player1.board.placeShipFull(row, col, idx, orientation, ship)
+    player1.board.placeShipFull(row, col, idx, orientation, ship);
     placeShipCells(row, col, idx, shipName, orientation, ship);
     dragStates = { idx: null, shipName: null, orientation: null };
-    //console.log(player1.board.getBoardValues(0, 0));
+    console.log(player1.board.getBoardValues(0, 0));
   });
 };

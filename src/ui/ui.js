@@ -133,3 +133,9 @@ export const placeShipCells = (row, col, idx, shipName, orientation, ship) => {
   }
   shipEl.classList.add("hidden");
 };
+
+export const resetBoardAndShips = () => {
+  document.querySelectorAll(".ships").forEach(ship => ship.classList.remove("hidden"));
+  document.querySelectorAll('[data-board="player1"]').forEach(cell => cell.classList.remove("highlight", "highlight-left", "highlight-right", "highlight-top", "highlight-bottom", "red", "yellow", "green", "blue" ));
+
+}
