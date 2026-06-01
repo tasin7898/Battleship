@@ -1,10 +1,18 @@
 import { el } from "./dom.js";
-import { resetShipsOrientation } from "./ui.js";
+import {
+  resetShipsOrientation,
+  toggleHighlightClass,
+  placeShipCells,
+} from "./ui.js";
 import { Player } from "../logic/player.js";
 
 let selectedShip = null;
 const player1 = new Player("human");
-
+let dragStates = {
+  idx: null,
+  shipName: null,
+  orientation: null,
+};
 export const initEvents = () => {
   document.addEventListener("click", (e) => {
     const { row, col, board, ship, idx } = e.target.dataset;
@@ -27,42 +35,59 @@ export const initEvents = () => {
   });
 
   document.addEventListener("dragstart", (e) => {
-    const { ship, idx } = e.target.dataset;
-    if (!ship) return;
-    e.dataTransfer.setData("shipName", ship);
-    e.dataTransfer.setData("idx", idx);
-    e.dataTransfer.setData(
-      "orientation",
-      e.target.closest(".ships").classList.contains("rotate")
-        ? "vertical"
-        : "horizontal",
-    );
+    const shipEl = e.target.closest(".ships");
+    if (!shipEl) return;
+    const ship = shipEl.querySelector("[data-ship]");
+    const { ship: shipName, idx: idxStr } = e.target.dataset;
+    const idx = Number(idxStr ?? 0);
+    const orientation = e.target.closest(".ships").classList.contains("rotate")
+      ? "vertical"
+      : "horizontal";
+    if (orientation === "vertical")
+      e.dataTransfer.setDragImage(shipEl, e.offsetX, e.offsetY + idx * 50);
+    if (orientation === "horizontal")
+      e.dataTransfer.setDragImage(shipEl, e.offsetX + idx * 50, e.offsetY);
+
+    e.dataTransfer.setData("shipName", shipName);
+    e.dataTransfer.setData("idx", idx ?? "0");
+    e.dataTransfer.setData("orientation", orientation);
+
+    dragStates = { idx, shipName, orientation };
   });
   document.addEventListener("dragover", (e) => {
-    const { board } = e.target.dataset;
+    if (!dragStates.shipName) return;
+    const { row: rowStr, col: colStr, board } = e.target.dataset;
     if (board !== "player1") return;
     e.preventDefault();
+    const row = Number(rowStr);
+    const col = Number(colStr);
+    const { idx, shipName, orientation } = dragStates;
+    toggleHighlightClass(row, col, idx, shipName, orientation, true);
+  });
+
+  document.addEventListener("dragleave", (e) => {
+    if (!dragStates.shipName) return;
+    const { row: rowStr, col: colStr, board } = e.target.dataset;
+    if (board !== "player1") return;
+    e.preventDefault();
+    const row = Number(rowStr);
+    const col = Number(colStr);
+    const { idx, shipName, orientation } = dragStates;
+    toggleHighlightClass(row, col, idx, shipName, orientation, false);
   });
   document.addEventListener("drop", (e) => {
     const { row: rowStr, col: colStr, board } = e.target.dataset;
+    if (board !== "player1") return;
+    e.preventDefault();
     const row = Number(rowStr);
     const col = Number(colStr);
-    if (board !== "player1") return;
     const shipName = e.dataTransfer.getData("shipName");
     const idx = Number(e.dataTransfer.getData("idx"));
     const orientation = e.dataTransfer.getData("orientation");
-    const shipEl = document.querySelector(`[data-ship="${shipName}"]`);
-    const shipLength = shipEl.children.length;
     const ship = player1.ships[shipName];
-    if (orientation === "horizontal") {
-      for (let i = -idx; i < shipLength - idx; i++) {
-        player1.board.placeShip(row, col + i, ship);
-      }
-    }
-    if (orientation === "vertical") {
-      for (let i = -idx; i < shipLength -idx ; i++) {
-        player1.board.placeShip(row + i, col, ship);
-      }
-    }
+    player1.board.placeShipFull(row, col, idx, orientation, ship)
+    placeShipCells(row, col, idx, shipName, orientation, ship);
+    dragStates = { idx: null, shipName: null, orientation: null };
+    //console.log(player1.board.getBoardValues(0, 0));
   });
 };

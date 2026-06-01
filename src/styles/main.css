@@ -19,7 +19,7 @@ body {
 
 .game {
   display: grid;
-  grid-template-columns: 1fr 2.5fr 1fr;
+  grid-template-columns: 300px 1050px 100px;
   gap: 2rem;
   align-items: start;
   flex: 1;
@@ -29,24 +29,60 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  height: 600px;
 }
 
 .all-ships-container {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  justify-content: center;
+
   align-items: center;
 }
 .ships {
   display: flex;
   gap: 0rem;
   padding: 0rem;
-  border-left: 0.5px solid black; 
+  border-left: 0.5px solid black;
 }
 
 .ships.selected {
   outline: 4px solid aqua;
+}
+.highlight-horizontal {
+  box-shadow:
+    0 -2px 0 red,
+    0 2px 0 red;
+}
+.highlight-vertical {
+  box-shadow:
+    -2px 0 0 red,
+    2px 0 0 red;
+}
+.highlight-left {
+  box-shadow:
+    -2px 0 0 red,
+    0 -2px 0 red,
+    0 2px 0 red;
+}
+.highlight-right {
+  box-shadow:
+    2px 0 0 red,
+    0 -2px 0 red,
+    0 2px 0 red;
+}
+
+.highlight-top {
+  box-shadow:
+    -2px 0 0 red,
+    2px 0 0 red,
+    0 -2px 0 red;
+}
+.highlight-bottom {
+  box-shadow:
+    -2px 0 0 red,
+    2px 0 0 red,
+    0 2px 0 red;
 }
 .ships > div {
   border-right: 0.5px solid black;
@@ -62,16 +98,16 @@ body {
 }
 
 .buttons {
-  padding-top: 1rem;;
+  padding-top: 1rem;
   display: flex;
   gap: 1.5rem;
   justify-content: center;
 }
 button {
-  border-radius: .8rem;
+  border-radius: 0.8rem;
   border: none;
   background-color: lightblue;
-  padding: .4rem .6rem;
+  padding: 0.4rem 0.6rem;
 }
 .boards {
   display: flex;
@@ -126,4 +162,8 @@ button {
 }
 .blue {
   background-color: rgb(30, 126, 236);
+}
+
+.hidden {
+  display: none;
 }

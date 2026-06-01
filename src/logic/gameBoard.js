@@ -7,6 +7,7 @@ export class GameBoard {
   #hitIdx = [];
   #activeHitIdx = [];
   #attackedIdx = [];
+
   placeShip(row, col, ship) {
     if (this.validatePlacement(row, col, ship)) {
       this.#board[row][col] = ship;
@@ -20,19 +21,30 @@ export class GameBoard {
     }
   }
 
+  placeShipFull(row, col, idx, orientation, ship) {
+    const shipLength = ship.length;
+
+    if (orientation === "horizontal") {
+      if (col - idx < 0 || col + (shipLength - 1 - idx) > 9) return;
+
+      for (let i = -idx; i < shipLength - idx; i++) {
+        this.placeShip(row, col + i, ship);
+      }
+    }
+    if (orientation === "vertical") {
+      if (row - idx < 0 || row + (shipLength - 1 - idx) > 9) return;
+
+      for (let i = -idx; i < shipLength - idx; i++) {
+        this.placeShip(row + i, col, ship);
+      }
+    }
+  }
   validatePlacement(row, col, ship) {
     if (row > 9 || row < 0 || col > 9 || col < 0 || this.#board[row][col])
       return false;
     const shipObj = [...this.#ships].find((currShip) => currShip.ship === ship);
     if (shipObj === undefined) return true;
     const peicesIdx = shipObj.pos;
-    // for (let i = 0; i < 10; i++) {
-    //   for (let j = 0; j < 10; j++) {
-    //     if (this.#board[i][j] === ship) {
-    //       peicesIdx.push({ row: i, col: j });
-    //     }
-    //   }
-    // }
     if (peicesIdx.length >= ship.length) return false;
     const peicesIdxLenght = peicesIdx.length;
     if (peicesIdxLenght === 1) {
@@ -83,12 +95,11 @@ export class GameBoard {
       this.#board[row][col] = "X";
       //console.log("missed", [row, col])
       return "missed";
-      
     } else if ((attackPos !== "X") & (attackPos !== "S")) {
       this.#hitIdx.push([row, col]);
       this.#activeHitIdx.push([row, col]);
       this.#attackedIdx.push([row, col]);
-      console.log("hit", [row, col])
+      console.log("hit", [row, col]);
       attackPos.hit();
       if (this.#modifySunkShips(attackPos)) return "sunk";
       return "hit";
@@ -103,13 +114,9 @@ export class GameBoard {
       sunkIdx.forEach(({ row, col }) => {
         this.#board[row][col] = "S";
       });
-      //console.log("sunkkkkkkk", sunkIdx);
-      //console.log("activeeeeeeeee", this.#activeHitIdx)
       this.#activeHitIdx = this.#activeHitIdx.filter(
         ([r, c]) => !sunkIdx.some(({ row, col }) => r === row && c === col),
       );
-      //console.log("activeeeeeeeee", this.#activeHitIdx)
-
       return true;
     }
   }
