@@ -1,3 +1,4 @@
+import { AbstractCryptoEngine } from "pkijs";
 import { Ship } from "../logic/ship.js";
 import { el } from "./dom.js";
 export const renderBoard = (container) => {
@@ -135,7 +136,57 @@ export const placeShipCells = (row, col, idx, shipName, orientation, ship) => {
 };
 
 export const resetBoardAndShips = () => {
-  document.querySelectorAll(".ships").forEach(ship => ship.classList.remove("hidden"));
-  document.querySelectorAll('[data-board="player1"]').forEach(cell => cell.classList.remove("highlight", "highlight-left", "highlight-right", "highlight-top", "highlight-bottom", "red", "yellow", "green", "blue" ));
+  document
+    .querySelectorAll(".ships")
+    .forEach((ship) => ship.classList.remove("hidden"));
+  document
+    .querySelectorAll('[data-board="player1"]')
+    .forEach((cell) =>
+      cell.classList.remove(
+        "highlight",
+        "highlight-left",
+        "highlight-right",
+        "highlight-top",
+        "highlight-bottom",
+        "red",
+        "yellow",
+        "green",
+        "blue",
+      ),
+    );
+};
 
-}
+export const renderScoreBoard = (playerEl, player) => {
+  const sunkships = player.board.sunkShips;
+  if (sunkShips.length === 0) return;
+  const score = document.createElement("div");
+  score.textContent = `Score: ${player.score}`;
+  const sunkShipsEl = document.createElement("div");
+  sunkShipsEl.classList.add("sunk-ships");
+  for (let i = 0; i < sunkShips.length; i++) {
+    const ship = document.createElement("div");
+    ship.textContent = sunkShips[0].name;
+    sunkShipsEl.appendChild(ship);
+  }
+  playerEl.append(score, sunkShipsEl);
+};
+
+export const updateDOM = (result, row, col, boardEl, board) => {
+  const cell = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+  if (result === "miss") {
+    cell.textContent = "●";
+  }
+  if (result === "hit") {
+    cell.textContent = "❌";
+  }
+  if (result instanceof Ship) {
+    board
+      .getShipIndices(result)
+      .forEach(
+        ([row, col]) =>
+          (boardEl.querySelector(
+            `[data-row="${row}"][data-col="${col}"]`,
+          ).textContent = "☠️"),
+      );
+  }
+};

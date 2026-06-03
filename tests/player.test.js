@@ -28,7 +28,7 @@ describe("Player class", () => {
       });
 
       test("never attacks the same cell twice", () => {
-        for (let i = 0; i < 50; i++) computerPlayer.attack();
+        for (let i = 0; i < 50; i++) computerPlayer.attack(computerPlayer.board);
         const attacked = computerPlayer.board.attackedIndices;
         const unique = new Set(attacked.map(([r, c]) => `${r},${c}`));
         expect(unique.size).toBe(attacked.length);
@@ -36,7 +36,7 @@ describe("Player class", () => {
 
       test("sinks all ships within 100 moves", () => {
         for (let i = 0; i < 70; i++) {
-          computerPlayer.attack();
+          computerPlayer.attack(computerPlayer.board);
           if (computerPlayer.board.allSunk()) break;
         }
         expect(computerPlayer.board.allSunk()).toBe(true);
@@ -44,7 +44,7 @@ describe("Player class", () => {
 
       test("each attack adds exactly one attacked cell", () => {
         for (let i = 1; i <= 10; i++) {
-          computerPlayer.attack();
+          computerPlayer.attack(computerPlayer.board);
           expect(computerPlayer.board.attackedIndices.length).toBe(i);
         }
       });

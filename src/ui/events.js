@@ -4,16 +4,23 @@ import {
   toggleHighlightClass,
   placeShipCells,
   resetBoardAndShips,
+  updateDOM,
 } from "./ui.js";
-import { Player } from "../logic/player.js";
+import { Player, ComputerPlayer } from "../logic/player.js";
+import { Game } from "../logic/game.js";
+import { update } from "lodash";
 
 let selectedShip = null;
+let gameActive = null;
 const player1 = new Player("human");
+const player2 = new ComputerPlayer("computer");
+const startGame = new Game(player1, player2);
 let dragStates = {
   idx: null,
   shipName: null,
   orientation: null,
 };
+
 export const initEvents = () => {
   document.addEventListener("click", (e) => {
     const { row, col, board, ship, idx } = e.target.dataset;
@@ -44,6 +51,24 @@ export const initEvents = () => {
         )
       )
         return;
+      el.shipsAndbuttonsContainer.classList.add("cleared");
+      el.confirmFleetBtn.classList.add("cleared");
+      gameActive = true;
+    }
+
+    if (board === "player2" && gameActive) {
+      const { resultP1, resultP2, winner } = startGame.handleAttack(
+        Number(row),
+        Number(col),
+      );
+      updateDOM(resultP1, row, col, el.opponentBoard, player2.board);
+      setTimeout(() => {
+        if (resultP2) updateDOM(resultP2, row, col, el.playerBoard, player1.board);
+      }, 3000);
+      if (winner) {
+        winner.addScore();
+        el.announcement.textContent = `${winner.name}`
+      }
     }
   });
 

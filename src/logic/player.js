@@ -3,9 +3,9 @@ import { Ship } from "./ship.js";
 
 export class Player {
   #score;
-
+  #name;
   constructor(name) {
-    this.name = name;
+    this.#name = name;
     this.board = new GameBoard();
     this.#score = 0;
     this.ships = {
@@ -15,15 +15,21 @@ export class Player {
       Patrol_Boat: new Ship(2, "Patrol_Boat"),
     };
   }
-  attack(row, col, board){
-    board.receiveAttack(row, col);
+
+  attack(row, col, board) {
+    return board.receiveAttack(row, col);
   }
+
   addScore() {
     this.#score++;
   }
 
   get score() {
     return this.#score;
+  }
+
+  get name() {
+    return this.#name;
   }
 }
 
@@ -176,13 +182,13 @@ export class ComputerPlayer extends Player {
         done = true;
       }
     });
-    console.log(
-      JSON.stringify(this.board.shipObj, null, 2),
-      this.board.shipObj[0].ship.name,
-      this.board.shipObj[1].ship.name,
-      this.board.shipObj[2].ship.name,
-      this.board.shipObj[3].ship.name,
-    );
+    // console.log(
+    //   JSON.stringify(this.board.shipObj, null, 2),
+    //   this.board.shipObj[0].ship.name,
+    //   this.board.shipObj[1].ship.name,
+    //   this.board.shipObj[2].ship.name,
+    //   this.board.shipObj[3].ship.name,
+    // );
   }
 
   #shuffle(arr) {
@@ -195,36 +201,6 @@ export class ComputerPlayer extends Player {
     return arr;
   }
 
-  // attack() {
-  //   const attackedPos = this.board.attackedIndices;
-  //   const activeHitPos = this.board.activeHitIndices;
-
-  //   if (activeHitPos.length === 0 && this.#queue.length === 0) {
-  //     let row, col;
-  //     do {
-  //       row = Math.floor(Math.random() * 10);
-  //       col = Math.floor(Math.random() * 10);
-  //     } while (attackedPos.some(([r, c]) => r === row && c === col));
-  //     this.board.receiveAttack(row, col);
-  //     return;
-  //   }
-
-  //   if (this.#queue.length === 0 && activeHitPos.length >= 1) {
-  //     const seed = activeHitPos[activeHitPos.length - 1];
-  //     this.#visited.push(seed);
-  //     this.#paths(seed, this.#visited, attackedPos).forEach((n) => this.#queue.push(n));
-  //   }
-
-  //   let [row, col] = this.#queue.shift();
-  //   this.#visited.push([row, col]);
-  //   const possibleAttacks = this.#paths([row, col], this.#visited, attackedPos);
-  //   const result = this.board.receiveAttack(row, col);
-  //   if (result === "sunk") {
-  //     this.#queue = [];
-  //   } else if (result === "hit") {
-  //     possibleAttacks.forEach((a) => this.#queue.push(a));
-  //   }
-  // }
   attack(board) {
     const attackedPos = board.attackedIndices;
     const activeHitPos = board.activeHitIndices;
@@ -288,7 +264,7 @@ export class ComputerPlayer extends Player {
           this.#backTrack = false;
           return;
         }
-        if (result === "sunk" || result === "hit") {
+        if (result instanceof Ship || result === "hit") {
           this.#backTrack = false;
           return;
         }

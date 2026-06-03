@@ -7,7 +7,7 @@ export class GameBoard {
   #hitIdx = [];
   #activeHitIdx = [];
   #attackedIdx = [];
-
+  #sunkShips = [];
   placeShip(row, col, ship) {
     if (this.validatePlacement(row, col, ship)) {
       this.#board[row][col] = ship;
@@ -101,13 +101,15 @@ export class GameBoard {
       this.#attackedIdx.push([row, col]);
       console.log("hit", [row, col]);
       attackPos.hit();
-      if (this.#modifySunkShips(attackPos)) return "sunk";
+      const sunk = this.#modifySunkShips(attackPos);
+      if (sunk) return sunk;
       return "hit";
     }
   }
 
   #modifySunkShips(attackPos) {
     if (attackPos.isSunk()) {
+      this.#sunkShips.push(attackPos);
       const sunkIdx = [...this.#ships].find(
         (currShip) => currShip.ship === attackPos,
       ).pos;
@@ -117,7 +119,7 @@ export class GameBoard {
       this.#activeHitIdx = this.#activeHitIdx.filter(
         ([r, c]) => !sunkIdx.some(({ row, col }) => r === row && c === col),
       );
-      return true;
+      return attackPos;
     }
   }
 
@@ -154,6 +156,9 @@ export class GameBoard {
 
   get shipObj() {
     return [...this.#ships];
+  }
+  get sunkShips() {
+    return [...this.#sunkShips];
   }
 
   removeShip(ship) {
