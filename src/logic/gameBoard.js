@@ -170,5 +170,6 @@ export class GameBoard {
   }
   clear(){
     this.#board = Array.from({ length: 10 }, () => Array(10).fill(""));
+    this.#ships = new Set();
   }
 }

@@ -34,6 +34,20 @@ export const renderShips = (ship) => {
   return container;
 };
 
+export const renderRandomisedShips = (player) => {
+  const shipColour = {
+    Patrol_Boat: "red",
+    Submarine: "yellow",
+    Destroyer: "green",
+    Battleship: "blue",
+  };
+  player.board.shipObj.forEach(({ship, pos}) => {
+    pos.forEach(({row, col}) => {
+      const cell = document.querySelector(`[data-board="player1"][data-row="${row}"][data-col="${col}"]`);
+      cell.classList.add(shipColour[ship.name]);
+    })
+  })
+}
 export const resetShipsOrientation = () => {
   document.querySelectorAll(".ships").forEach((ship) => {
     ship.classList.remove("rotate");
@@ -109,7 +123,6 @@ export const placeShipCells = (row, col, idx, shipName, orientation, ship) => {
   if (!shipCellEl) return;
   const shipEl = shipCellEl.closest(".ships");
   const shipLength = shipEl.children.length;
-
   if (orientation === "horizontal") {
     if (col - idx < 0 || col + (shipLength - 1 - idx) > 9) return;
 
@@ -156,31 +169,39 @@ export const resetBoardAndShips = () => {
     );
 };
 
-export const renderScoreBoard = (playerEl, player) => {
-  const sunkships = player.board.sunkShips;
-  if (sunkShips.length === 0) return;
+export const renderScoreBoard = (playerEl, player, opponent) => {
+  playerEl.innerHTML = "";
+  const sunkShips = opponent.board.sunkShips;
+  const wrapper = document.createElement("div");
+  const playerName = document.createElement("div");
+  playerName.textContent = player.name;
   const score = document.createElement("div");
   score.textContent = `Score: ${player.score}`;
+  wrapper.append(playerName, score);
   const sunkShipsEl = document.createElement("div");
+  const sunkLabel = document.createElement("div");
+  sunkLabel.textContent = "Sunk Ships";
+  sunkShipsEl.appendChild(sunkLabel);
   sunkShipsEl.classList.add("sunk-ships");
   for (let i = 0; i < sunkShips.length; i++) {
     const ship = document.createElement("div");
-    ship.textContent = sunkShips[0].name;
+    ship.textContent = sunkShips[i].name;
     sunkShipsEl.appendChild(ship);
   }
-  playerEl.append(score, sunkShipsEl);
+  playerEl.append(wrapper, sunkShipsEl);
 };
 
-export const updateDOM = (result, row, col, boardEl, board) => {
+export const updateDOM = (result, boardEl, player) => {
+  const [row, col] = player.board.attackedIndices.at(-1);
   const cell = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-  if (result === "miss") {
+  if (result === "missed") {
     cell.textContent = "●";
   }
   if (result === "hit") {
     cell.textContent = "❌";
   }
   if (result instanceof Ship) {
-    board
+    player.board
       .getShipIndices(result)
       .forEach(
         ([row, col]) =>
@@ -189,4 +210,17 @@ export const updateDOM = (result, row, col, boardEl, board) => {
           ).textContent = "☠️"),
       );
   }
+};
+
+export const printBoard = (player) => {
+  const grid = [];
+  for (let i = 0; i < 10; i++) {
+    const row = {};
+    for (let j = 0; j < 10; j++) {
+      const val = player.board.getBoardValues(i, j);
+      row[j] = val ? (typeof val === "object" ? val.name[0] : val) : ".";
+    }
+    grid.push(row);
+  }
+  console.table(grid);
 };

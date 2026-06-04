@@ -5,16 +5,17 @@ import {
   placeShipCells,
   resetBoardAndShips,
   updateDOM,
+  printBoard,
+  renderScoreBoard,
+  renderRandomisedShips,
 } from "./ui.js";
 import { Player, ComputerPlayer } from "../logic/player.js";
 import { Game } from "../logic/game.js";
-import { update } from "lodash";
+import { Ship } from "../logic/ship.js";
+import { player1, player2, startGame } from "../barrel.js";
 
 let selectedShip = null;
 let gameActive = null;
-const player1 = new Player("human");
-const player2 = new ComputerPlayer("computer");
-const startGame = new Game(player1, player2);
 let dragStates = {
   idx: null,
   shipName: null,
@@ -23,7 +24,16 @@ let dragStates = {
 
 export const initEvents = () => {
   document.addEventListener("click", (e) => {
-    const { row, col, board, ship, idx } = e.target.dataset;
+    const {
+      row: rowStr,
+      col: colStr,
+      board,
+      ship,
+      idx: idxStr,
+    } = e.target.dataset;
+    const row = Number(rowStr);
+    const col = Number(colStr);
+    const idx = Number(idxStr);
     if (!ship && selectedShip) selectedShip.classList.remove("selected");
     if (
       !e.target.closest(".all-ships-container") &&
@@ -44,30 +54,53 @@ export const initEvents = () => {
       resetBoardAndShips();
       player1.board.clear();
     }
-    if (e.target.matches(".confirm-fleet")) {
+    if (e.target === el.confirmFleetBtn) {
       if (
         !Object.values(player1.ships).every((ship) =>
           player1.board.getShipsIdx(ship),
         )
       )
         return;
+
       el.shipsAndbuttonsContainer.classList.add("cleared");
       el.confirmFleetBtn.classList.add("cleared");
+      player2.placeRandShips();
       gameActive = true;
+      printBoard(player1);
+      printBoard(player2);
+    }
+    if (e.target === el.RandomiseShipsBtn) {
+      resetBoardAndShips();
+      player1.board.clear();
+      player1.placeRandShips();
+      renderRandomisedShips(player1);
     }
 
     if (board === "player2" && gameActive) {
-      const { resultP1, resultP2, winner } = startGame.handleAttack(
-        Number(row),
-        Number(col),
-      );
-      updateDOM(resultP1, row, col, el.opponentBoard, player2.board);
-      setTimeout(() => {
-        if (resultP2) updateDOM(resultP2, row, col, el.playerBoard, player1.board);
-      }, 3000);
+      if (rowStr === undefined || colStr === undefined) return;
+      const result = startGame.handleAttack(row, col);
+      if (!result) return;
+      const { resultP1, resultP2, winner } = result;
+
+      //console.log([row, col], resultP1, resultP2, winner);
+      updateDOM(resultP1, el.opponentBoard, player2);
+      if (resultP1 instanceof Ship)
+        renderScoreBoard(el.player1ScoreBoard, player1, player2);
+      //console.log(player2.board.attackedIndices);
+      if (winner !== player1) {
+        setTimeout(() => {
+          if (resultP2) {
+            updateDOM(resultP2, el.playerBoard, player1);
+            if (resultP2 instanceof Ship)
+              renderScoreBoard(el.player2ScoreBoard, player2, player1);
+          }
+        }, 30);
+      }
       if (winner) {
         winner.addScore();
-        el.announcement.textContent = `${winner.name}`
+        renderScoreBoard(el.player1ScoreBoard, player1, player2);
+        renderScoreBoard(el.player2ScoreBoard, player2, player1);
+        el.announcement.textContent = `${winner.name}`;
       }
     }
   });
@@ -124,6 +157,7 @@ export const initEvents = () => {
     const orientation = e.dataTransfer.getData("orientation");
     const ship = player1.ships[shipName];
     player1.board.placeShipFull(row, col, idx, orientation, ship);
+    toggleHighlightClass(row, col, idx, shipName, orientation, false);
     placeShipCells(row, col, idx, shipName, orientation, ship);
     dragStates = { idx: null, shipName: null, orientation: null };
     console.log(player1.board.getBoardValues(0, 0));

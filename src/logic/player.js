@@ -16,40 +16,9 @@ export class Player {
     };
   }
 
-  attack(row, col, board) {
-    return board.receiveAttack(row, col);
-  }
-
-  addScore() {
-    this.#score++;
-  }
-
-  get score() {
-    return this.#score;
-  }
-
-  get name() {
-    return this.#name;
-  }
-}
-
-export class ComputerPlayer extends Player {
-  #queue = [];
-  #visited = [];
-  #backTrack = false;
-  #hitAnotherShip = false;
-  constructor(name = "Computer") {
-    super(name);
-  }
-
   placeRandShips() {
-    const ships = [
-      new Ship(4, "Battleship"),
-      new Ship(3, "Destroyer"),
-      new Ship(3, "Submarine"),
-      new Ship(2, "Patrol_Boat"),
-    ];
-    const shuffledShips = this.#shuffle(ships);
+    const ships = Object.values(this.ships);
+    const shuffledShips = Player.shuffle(ships);
     shuffledShips.forEach((ship) => {
       let done = false;
       let stuck = false;
@@ -191,7 +160,7 @@ export class ComputerPlayer extends Player {
     // );
   }
 
-  #shuffle(arr) {
+  static shuffle(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       const temp = arr[i];
@@ -200,7 +169,31 @@ export class ComputerPlayer extends Player {
     }
     return arr;
   }
+  attack(row, col, board) {
+    return board.receiveAttack(row, col);
+  }
 
+  addScore() {
+    this.#score++;
+  }
+
+  get score() {
+    return this.#score;
+  }
+
+  get name() {
+    return this.#name;
+  }
+}
+
+export class ComputerPlayer extends Player {
+  #queue = [];
+  #visited = [];
+  #backTrack = false;
+  #hitAnotherShip = false;
+  constructor(name = "Computer") {
+    super(name);
+  }
   attack(board) {
     const attackedPos = board.attackedIndices;
     const activeHitPos = board.activeHitIndices;
@@ -214,17 +207,18 @@ export class ComputerPlayer extends Player {
         attackedPos.some(([r, c]) => r === row && c === col) ||
         (row + col) % 2 !== 0
       );
-      board.receiveAttack(row, col);
-      return;
+      console.log(row, col);
+      return board.receiveAttack(row, col);
     }
     if (activeHitPos.length === 1) {
-      const [row, col] = this.#shuffle(
+      const [row, col] = Player.shuffle(
         this.#paths(activeHitPos[0], attackedPos),
       )[0];
       //console.log("afterHit activeHitPos.length === 1", [row, col])
       //console.log("attackedPos activeHitPos.length === 1", attackedPos)
-      board.receiveAttack(row, col);
-      return;
+      console.log(row, col);
+
+      return board.receiveAttack(row, col);
     }
     const [r0, c0] = activeHitPos[0];
     const [r1, c1] = activeHitPos[activeHitPos.length - 2];
@@ -271,7 +265,7 @@ export class ComputerPlayer extends Player {
       }
     }
     if (this.#hitAnotherShip) {
-      const paths = this.#shuffle(this.#paths([r2, c2], attackedPos));
+      const paths = Player.shuffle(this.#paths([r2, c2], attackedPos));
       let row, col;
 
       if (paths.length === 0) {
@@ -282,17 +276,19 @@ export class ComputerPlayer extends Player {
           attackedPos.some(([r, c]) => r === row && c === col) ||
           (row + col) % 2 !== 0
         );
-        board.receiveAttack(row, col);
-        return;
+        console.log(row, col);
+
+        return board.receiveAttack(row, col);
       }
       //console.log([row, col]);
       [row, col] = paths[0];
-      board.receiveAttack(row, col);
       this.#hitAnotherShip = false;
-      return;
+      return board.receiveAttack(row, col);
     }
+    console.log(nextRow, nextCol);
     result = board.receiveAttack(nextRow, nextCol);
     if (result === "miss") this.#backTrack = true;
+    return result;
   }
   #paths([row, col], attackedPos) {
     return [
@@ -308,24 +304,24 @@ export class ComputerPlayer extends Player {
   }
 }
 
-// const player1 = new Player("tasin");
-// const comp = new ComputerPlayer();
-// comp.placeRandShips();
+const player1 = new Player("tasin");
+const comp = new ComputerPlayer();
+player1.placeRandShips();
 
-// // print board
-// for (let i = 0; i < 10; i++) {
-//   const row = [];
-//   for (let j = 0; j < 10; j++) {
-//     const val = comp.board.getBoardValues(i, j);
-//     row.push(val ? (val.name[0] ?? val) : ".");
-//   }
-//   console.log(row.join("   "));
-// }
+// print board
+for (let i = 0; i < 10; i++) {
+  const row = [];
+  for (let j = 0; j < 10; j++) {
+    const val = player1.board.getBoardValues(i, j);
+    row.push(val ? (val.name[0] ?? val) : ".");
+  }
+  console.log(row.join("   "));
+}
 
-// let moves = 0;
-// while (!comp.board.allSunk()) {
-//   comp.attack();
-//   moves++;
-//   console.log(`Move ${moves}:`, comp.board.attackedIndices.at(-1));
-// }
-// console.log(`Sunk all ships in ${moves} moves`);
+let moves = 0;
+while (!player1.board.allSunk()) {
+  comp.attack(player1.board);
+  moves++;
+  console.log(`Move ${moves}:`, player1.board.attackedIndices.at(-1));
+}
+console.log(`Sunk all ships in ${moves} moves`);

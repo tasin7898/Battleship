@@ -11,6 +11,7 @@ export class Game {
     if (row === undefined || col === undefined) return;
      let resultP1, resultP2;
      resultP1 = this.player1.attack(row, col, this.player2.board);
+     if(!resultP1) return;
     if (resultP1 instanceof Ship) {
       if (this.player2.board.allSunk()) return { resultP1, resultP2 : null, winner: this.player1 };
     }
