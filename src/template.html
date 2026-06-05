@@ -6,12 +6,27 @@
     <title>Document</title>
   </head>
   <body>
+    <dialog class="dialog-box">
+      <div class="inner-dialog-box">
+        <div class="dialog-title">Name Your Commander</div>
+        <input
+          type="text"
+          class="name-input"
+          placeholder="Commander..."
+          maxlength="20"
+        />
+        <div class="dialog-buttons">
+          <button class="dialog-confirm">Set Sail</button>
+          <button class="dialog-close">Deserter</button>
+        </div>
+      </div>
+    </dialog>
     <div class="header">
       <div>Battleship</div>
     </div>
     <div class="game">
       <div class="ships-button-container">
-        <div>Ships</div>
+        <div class="ships-label">Ships</div>
         <div class="all-ships-container"></div>
         <div class="buttons">
           <button class="rotate-button">⟳ Rotate</button>
@@ -22,20 +37,25 @@
           <button class="randomise-ships">Randomise Ships</button>
         </div>
       </div>
-      <div class="boards">
-        <div class="game-board1" data-board="player1"></div>
-        <div class="game-board2" data-board="player2"></div>
+      <div class="player-boards">
+        <div class="boards">
+          <div class="game-board1" data-board="player1"></div>
+          <div class="game-board2" data-board="player2"></div>
+        </div>
+        <div class="computer-thinking cleared"></div>
+        <div class="game-buttons">
+          <button class="confirm-fleet">Confirm Fleet & Embark</button>
+          <button class="restart-game hidden">Restart Game</button>
+        </div>
       </div>
       <div class="all-scores">
         <div class="scores">
-          <div class="player1"></div>
-          <div class="player2"></div>
+          <div class="scoreboard-player1"></div>
+          <div class="scoreboard-player2"></div>
         </div>
-        <div class="announcements"></div>
+        <div class="announcements hidden"></div>
+        <button class="reset-scores">Reset Scores</button>
       </div>
     </div>
-    <button class="confirm-fleet">Confirm Fleet & Start</button>
-
-    <div class="vs-human">Play with a friend</div>
   </body>
 </html>

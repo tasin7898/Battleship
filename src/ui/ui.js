@@ -1,6 +1,14 @@
 import { AbstractCryptoEngine } from "pkijs";
 import { Ship } from "../logic/ship.js";
 import { el } from "./dom.js";
+
+const shipColour = {
+  Patrol_Boat: "red",
+  Submarine: "yellow",
+  Destroyer: "green",
+  Battleship: "blue",
+};
+
 export const renderBoard = (container) => {
   for (let i = 0; i < 10; i++) {
     for (let j = 0; j < 10; j++) {
@@ -14,12 +22,6 @@ export const renderBoard = (container) => {
 };
 
 export const renderShips = (ship) => {
-  const shipColour = {
-    Patrol_Boat: "red",
-    Submarine: "yellow",
-    Destroyer: "green",
-    Battleship: "blue",
-  };
   const container = document.createElement("div");
   container.classList.add("ships");
   //container.draggable = true;
@@ -35,19 +37,15 @@ export const renderShips = (ship) => {
 };
 
 export const renderRandomisedShips = (player) => {
-  const shipColour = {
-    Patrol_Boat: "red",
-    Submarine: "yellow",
-    Destroyer: "green",
-    Battleship: "blue",
-  };
-  player.board.shipObj.forEach(({ship, pos}) => {
-    pos.forEach(({row, col}) => {
-      const cell = document.querySelector(`[data-board="player1"][data-row="${row}"][data-col="${col}"]`);
+  player.board.shipObj.forEach(({ ship, pos }) => {
+    pos.forEach(({ row, col }) => {
+      const cell = document.querySelector(
+        `[data-board="player1"][data-row="${row}"][data-col="${col}"]`,
+      );
       cell.classList.add(shipColour[ship.name]);
-    })
-  })
-}
+    });
+  });
+};
 export const resetShipsOrientation = () => {
   document.querySelectorAll(".ships").forEach((ship) => {
     ship.classList.remove("rotate");
@@ -169,31 +167,65 @@ export const resetBoardAndShips = () => {
     );
 };
 
+export const resetGame = () => {
+  el.shipsAndbuttonsContainer.classList.remove("cleared");
+
+  el.confirmFleetBtn.classList.remove("hidden");
+
+  document.querySelectorAll('[data-board="player1"]').forEach((cell) => {
+    cell.classList.remove(
+      "highlight",
+      "highlight-left",
+      "highlight-right",
+      "highlight-top",
+      "highlight-bottom",
+      "red",
+      "yellow",
+      "green",
+      "blue",
+    );
+    if (["●", "❌", "☠️"].includes(cell.textContent)) cell.textContent = "";
+  });
+  document.querySelectorAll('[data-board="player2"]').forEach((cell) => {
+    if (["●", "❌", "☠️"].includes(cell.textContent)) cell.textContent = "";
+  });
+};
+
 export const renderScoreBoard = (playerEl, player, opponent) => {
   playerEl.innerHTML = "";
   const sunkShips = opponent.board.sunkShips;
-  const wrapper = document.createElement("div");
+  const wrapperNameScore = document.createElement("div");
+  wrapperNameScore.classList.add("name-score");
   const playerName = document.createElement("div");
   playerName.textContent = player.name;
   const score = document.createElement("div");
   score.textContent = `Score: ${player.score}`;
-  wrapper.append(playerName, score);
+  wrapperNameScore.append(playerName, score);
   const sunkShipsEl = document.createElement("div");
   const sunkLabel = document.createElement("div");
-  sunkLabel.textContent = "Sunk Ships";
+  sunkLabel.textContent = "Sunk Ships ☠️";
   sunkShipsEl.appendChild(sunkLabel);
   sunkShipsEl.classList.add("sunk-ships");
   for (let i = 0; i < sunkShips.length; i++) {
     const ship = document.createElement("div");
+    ship.classList.add(shipColour[sunkShips[i].name]);
     ship.textContent = sunkShips[i].name;
     sunkShipsEl.appendChild(ship);
   }
-  playerEl.append(wrapper, sunkShipsEl);
+  playerEl.append(wrapperNameScore, sunkShipsEl);
 };
 
-export const updateDOM = (result, boardEl, player) => {
+export const updateDOM = (
+  result,
+  boardEl,
+  player,
+  compRow = undefined,
+  compCol = undefined,
+) => {
   const [row, col] = player.board.attackedIndices.at(-1);
-  const cell = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+  const cell = boardEl.querySelector(
+    `[data-row="${compRow ?? row}"][data-col="${compCol ?? col}"]`,
+  );
   if (result === "missed") {
     cell.textContent = "●";
   }
@@ -224,3 +256,14 @@ export const printBoard = (player) => {
   }
   console.table(grid);
 };
+
+export const renderComputerAttackState = (el) => {
+  const dots = ["", ".", "..", "..."];
+  let i = 0;
+  const interval = setInterval(() => {
+    el.textContent = `Computer Attacking${dots[i % dots.length]}`;
+    i++;
+  }, 200);
+  return interval;
+};
+

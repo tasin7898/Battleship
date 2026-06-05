@@ -11,8 +11,8 @@ import {
   renderScoreBoard,
 } from "./barrel.js";
 
-export const player1 = new Player("human");
-export const player2 = new ComputerPlayer("computer");
+export const player1 = new Player();
+export const player2 = new ComputerPlayer("Computer");
 export const startGame = new Game(player1, player2);
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -22,4 +22,5 @@ document.addEventListener("DOMContentLoaded", () => {
   initEvents();
   renderScoreBoard(el.player1ScoreBoard, player1, player2);
   renderScoreBoard(el.player2ScoreBoard, player2, player1);
+  el.dialogBox.showModal();
 });

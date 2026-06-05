@@ -8,6 +8,8 @@ import {
   printBoard,
   renderScoreBoard,
   renderRandomisedShips,
+  resetGame,
+  renderComputerAttackState,
 } from "./ui.js";
 import { Player, ComputerPlayer } from "../logic/player.js";
 import { Game } from "../logic/game.js";
@@ -34,26 +36,36 @@ export const initEvents = () => {
     const row = Number(rowStr);
     const col = Number(colStr);
     const idx = Number(idxStr);
+
     if (!ship && selectedShip) selectedShip.classList.remove("selected");
+
     if (
       !e.target.closest(".all-ships-container") &&
       !e.target.matches(".rotate-button")
-    )
+    ) {
       selectedShip = null;
+    }
+
     if (ship) {
       if (selectedShip && selectedShip !== e.target.closest(".ships"))
         selectedShip.classList.remove("selected");
       selectedShip = e.target.closest(".ships");
       selectedShip.classList.add("selected");
     }
+
     if (e.target.matches(".rotate-button") && selectedShip) {
       selectedShip.classList.toggle("rotate");
     }
-    if (e.target.matches(".reset-button")) resetShipsOrientation();
+
+    if (e.target.matches(".reset-button")) {
+      resetShipsOrientation();
+    }
+
     if (e.target.matches(".reset-ships")) {
       resetBoardAndShips();
       player1.board.clear();
     }
+
     if (e.target === el.confirmFleetBtn) {
       if (
         !Object.values(player1.ships).every((ship) =>
@@ -61,13 +73,23 @@ export const initEvents = () => {
         )
       )
         return;
-
+      el.restartBtn.classList.remove("hidden");
       el.shipsAndbuttonsContainer.classList.add("cleared");
-      el.confirmFleetBtn.classList.add("cleared");
+      el.confirmFleetBtn.classList.add("hidden");
       player2.placeRandShips();
       gameActive = true;
       printBoard(player1);
       printBoard(player2);
+    }
+
+    if (e.target === el.cancelDialogBtn || !el.dialogInner.contains(e.target)) {
+      el.dialogBox.close();
+    }
+    if (e.target === el.confirmDialogBtn) {
+      const name = el.nameInput.value.trim();
+      if (name) player1.name_ = name;
+      renderScoreBoard(el.player1ScoreBoard, player1, player2);
+      el.dialogBox.close();
     }
     if (e.target === el.RandomiseShipsBtn) {
       resetBoardAndShips();
@@ -76,35 +98,84 @@ export const initEvents = () => {
       renderRandomisedShips(player1);
     }
 
+    if (e.target === el.restartBtn) {
+      resetGame();
+      player1.board.clear();
+      player2.board.clear();
+      renderScoreBoard(el.player1ScoreBoard, player1, player2);
+      renderScoreBoard(el.player2ScoreBoard, player2, player1);
+      gameActive = null;
+      el.restartBtn.classList.add("hidden");
+    }
+
+    if (e.target === el.resetScoresBtn) {
+      startGame.resetScores();
+      console.log(player1.score, player2.score);
+      renderScoreBoard(el.player1ScoreBoard, player1, player2);
+
+      renderScoreBoard(el.player2ScoreBoard, player2, player1);
+    }
+
     if (board === "player2" && gameActive) {
+      gameActive = null;
       if (rowStr === undefined || colStr === undefined) return;
       const result = startGame.handleAttack(row, col);
       if (!result) return;
       const { resultP1, resultP2, winner } = result;
 
-      //console.log([row, col], resultP1, resultP2, winner);
       updateDOM(resultP1, el.opponentBoard, player2);
       if (resultP1 instanceof Ship)
         renderScoreBoard(el.player1ScoreBoard, player1, player2);
-      //console.log(player2.board.attackedIndices);
+      const [compRow, compCol] = player1.board.attackedIndices.at(-1);
+      el.computerThinking.classList.remove("cleared");
+      const interval = renderComputerAttackState(el.computerThinking);
       if (winner !== player1) {
         setTimeout(() => {
+          if (!winner) gameActive = true;
+
+          clearInterval(interval);
+          el.computerThinking.classList.add("cleared");
+
           if (resultP2) {
-            updateDOM(resultP2, el.playerBoard, player1);
+            updateDOM(resultP2, el.playerBoard, player1, compRow, compCol);
             if (resultP2 instanceof Ship)
               renderScoreBoard(el.player2ScoreBoard, player2, player1);
           }
-        }, 30);
+        }, 1000);
       }
       if (winner) {
+        clearInterval(interval);
+        el.computerThinking.classList.add("cleared");
+
         winner.addScore();
         renderScoreBoard(el.player1ScoreBoard, player1, player2);
         renderScoreBoard(el.player2ScoreBoard, player2, player1);
-        el.announcement.textContent = `${winner.name}`;
+        el.announcement.textContent = `${winner.name} Wins this Naval Battle`;
+        el.announcement.classList.remove("hidden");
+        el.announcement.classList.add("appear");
+        el.announcement.addEventListener(
+          "animationend",
+          () => {
+            el.announcement.classList.remove("appear");
+            el.announcement.classList.add("hidden");
+          },
+          { once: true },
+        );
+        el.restartBtn.textContent = "New Voyage";
+        gameActive = null;
       }
     }
   });
 
+  el.dialogBox.addEventListener("cancel", () => {});
+  el.dialogBox.addEventListener("keydown", (e) => {
+    if ((e.key === "Enter")) {
+      const name = el.nameInput.value.trim();
+      if (name) player1.name_ = name;
+      renderScoreBoard(el.player1ScoreBoard, player1, player2);
+      el.dialogBox.close();
+    }
+  });
   document.addEventListener("dragstart", (e) => {
     const shipEl = e.target.closest(".ships");
     if (!shipEl) return;

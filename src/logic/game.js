@@ -21,4 +21,8 @@ export class Game {
     }
     return { resultP1, resultP2, winner : null };
   }
+  resetScores() {
+    this.player1.resetScore();
+    this.player2.resetScore();
+  }
 }

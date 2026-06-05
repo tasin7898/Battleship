@@ -168,8 +168,13 @@ export class GameBoard {
     deleteShip.forEach(({ row, col }) => (this.#board[row][col] = ""));
     this.#ships.delete([...this.#ships].find((entry) => entry.ship === ship));
   }
-  clear(){
+  clear() {
     this.#board = Array.from({ length: 10 }, () => Array(10).fill(""));
+    this.#missIdx = [];
     this.#ships = new Set();
+    this.#hitIdx = [];
+    this.#activeHitIdx = [];
+    this.#attackedIdx = [];
+    this.#sunkShips = [];
   }
 }

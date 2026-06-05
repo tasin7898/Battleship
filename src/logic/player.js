@@ -4,7 +4,7 @@ import { Ship } from "./ship.js";
 export class Player {
   #score;
   #name;
-  constructor(name) {
+  constructor(name = "Human") {
     this.#name = name;
     this.board = new GameBoard();
     this.#score = 0;
@@ -177,12 +177,18 @@ export class Player {
     this.#score++;
   }
 
+  resetScore() {
+    this.#score = 0;
+  }
   get score() {
     return this.#score;
   }
 
   get name() {
     return this.#name;
+  }
+  set name_(playerName) {
+    this.#name = playerName;
   }
 }
 
@@ -256,11 +262,11 @@ export class ComputerPlayer extends Player {
         if (result === "miss") {
           this.#hitAnotherShip = true;
           this.#backTrack = false;
-          return;
+          return result;
         }
         if (result instanceof Ship || result === "hit") {
           this.#backTrack = false;
-          return;
+          return result;
         }
       }
     }
