@@ -60,6 +60,7 @@ body {
   gap: 2rem;
   font-family: "Rajdhani", serif;
   background-color: #eef2f7;
+  overflow: auto;
 }
 
 .header {
