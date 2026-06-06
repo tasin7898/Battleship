@@ -23,5 +23,8 @@ export class Ship {
   get name () {
     return this.#name;
   }
+  clearHits () {
+    this.#hits = 0;
+  }
 }
 

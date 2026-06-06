@@ -180,6 +180,10 @@ export class Player {
   resetScore() {
     this.#score = 0;
   }
+
+  clearShips() {
+    Object.values(this.ships).forEach((ship) => ship.clearHits());
+  }
   get score() {
     return this.#score;
   }
@@ -193,8 +197,6 @@ export class Player {
 }
 
 export class ComputerPlayer extends Player {
-  #queue = [];
-  #visited = [];
   #backTrack = false;
   #hitAnotherShip = false;
   constructor(name = "Computer") {
@@ -218,7 +220,7 @@ export class ComputerPlayer extends Player {
     }
     if (activeHitPos.length === 1) {
       const [row, col] = Player.shuffle(
-        this.#paths(activeHitPos[0], attackedPos),
+        this.#paths(activeHitPos[0], attackedPos)
       )[0];
       //console.log("afterHit activeHitPos.length === 1", [row, col])
       //console.log("attackedPos activeHitPos.length === 1", attackedPos)
@@ -305,7 +307,7 @@ export class ComputerPlayer extends Player {
     ]
       .filter(([a, b]) => a <= 9 && a >= 0 && b <= 9 && b >= 0)
       .filter(
-        ([row, col]) => !attackedPos.some(([r, c]) => r === row && c === col),
+        ([row, col]) => !attackedPos.some(([r, c]) => r === row && c === col)
       );
   }
 }

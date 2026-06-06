@@ -5,7 +5,6 @@ import {
   Game,
   el,
   renderBoard,
-  renderShips,
   initShips,
   initEvents,
   renderScoreBoard,
