@@ -26,16 +26,9 @@ let dragStates = {
 
 export const initEvents = () => {
   document.addEventListener("click", (e) => {
-    const {
-      row: rowStr,
-      col: colStr,
-      board,
-      ship,
-      idx: idxStr,
-    } = e.target.dataset;
+    const { row: rowStr, col: colStr, board, ship } = e.target.dataset;
     const row = Number(rowStr);
     const col = Number(colStr);
-    const idx = Number(idxStr);
 
     if (!ship && selectedShip) selectedShip.classList.remove("selected");
 
@@ -69,7 +62,7 @@ export const initEvents = () => {
     if (e.target === el.confirmFleetBtn) {
       if (
         !Object.values(player1.ships).every((ship) =>
-          player1.board.getShipsIdx(ship),
+          player1.board.getShipsIdx(ship)
         )
       )
         return;
@@ -96,6 +89,8 @@ export const initEvents = () => {
       player1.board.clear();
       player1.placeRandShips();
       renderRandomisedShips(player1);
+      el.shipsContainer.classList.add("cleared");
+      el.shipsTitle.classList.add("cleared");
     }
 
     if (e.target === el.restartBtn) {
@@ -159,7 +154,7 @@ export const initEvents = () => {
             el.announcement.classList.remove("appear");
             el.announcement.classList.add("hidden");
           },
-          { once: true },
+          { once: true }
         );
         el.restartBtn.textContent = "New Voyage";
         gameActive = null;
@@ -169,7 +164,7 @@ export const initEvents = () => {
 
   el.dialogBox.addEventListener("cancel", () => {});
   el.dialogBox.addEventListener("keydown", (e) => {
-    if ((e.key === "Enter")) {
+    if (e.key === "Enter") {
       const name = el.nameInput.value.trim();
       if (name) player1.name_ = name;
       renderScoreBoard(el.player1ScoreBoard, player1, player2);

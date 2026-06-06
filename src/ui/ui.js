@@ -40,7 +40,7 @@ export const renderRandomisedShips = (player) => {
   player.board.shipObj.forEach(({ ship, pos }) => {
     pos.forEach(({ row, col }) => {
       const cell = document.querySelector(
-        `[data-board="player1"][data-row="${row}"][data-col="${col}"]`,
+        `[data-board="player1"][data-row="${row}"][data-col="${col}"]`
       );
       cell.classList.add(shipColour[ship.name]);
     });
@@ -66,7 +66,7 @@ export const toggleHighlightClass = (
   idx,
   shipName,
   orientation,
-  add = true,
+  add = true
 ) => {
   const shipCellEl = document.querySelector(`[data-ship="${shipName}"]`);
   if (!shipCellEl) return;
@@ -75,7 +75,7 @@ export const toggleHighlightClass = (
   if (orientation === "horizontal") {
     for (let i = -idx; i < shipLength - idx; i++) {
       const cell = document.querySelector(
-        `[data-board="player1"][data-row="${row}"][data-col="${col + i}"]`,
+        `[data-board="player1"][data-row="${row}"][data-col="${col + i}"]`
       );
       if (!cell) continue;
       if (i === -idx) {
@@ -96,7 +96,7 @@ export const toggleHighlightClass = (
   if (orientation === "vertical") {
     for (let i = -idx; i < shipLength - idx; i++) {
       const cell = document.querySelector(
-        `[data-board="player1"][data-row="${row + i}"][data-col="${col}"]`,
+        `[data-board="player1"][data-row="${row + i}"][data-col="${col}"]`
       );
       if (!cell) continue;
       if (i === -idx) {
@@ -127,7 +127,7 @@ export const placeShipCells = (row, col, idx, shipName, orientation, ship) => {
     for (let i = -idx; i < shipLength - idx; i++) {
       //player.board.placeShip(row, col + i, ship);
       const cell = document.querySelector(
-        `[data-board="player1"][data-row="${row}"][data-col="${col + i}"]`,
+        `[data-board="player1"][data-row="${row}"][data-col="${col + i}"]`
       );
       if (cell) cell.className = shipCellEl.className;
     }
@@ -138,7 +138,7 @@ export const placeShipCells = (row, col, idx, shipName, orientation, ship) => {
     for (let i = -idx; i < shipLength - idx; i++) {
       //player.board.placeShip(row + i, col, ship);
       const cell = document.querySelector(
-        `[data-board="player1"][data-row="${row + i}"][data-col="${col}"]`,
+        `[data-board="player1"][data-row="${row + i}"][data-col="${col}"]`
       );
       if (cell) cell.className = shipCellEl.className;
     }
@@ -147,6 +147,8 @@ export const placeShipCells = (row, col, idx, shipName, orientation, ship) => {
 };
 
 export const resetBoardAndShips = () => {
+  el.shipsContainer.classList.remove("cleared");
+  el.shipsTitle.classList.remove("cleared");
   document
     .querySelectorAll(".ships")
     .forEach((ship) => ship.classList.remove("hidden"));
@@ -162,14 +164,15 @@ export const resetBoardAndShips = () => {
         "red",
         "yellow",
         "green",
-        "blue",
-      ),
+        "blue"
+      )
     );
 };
 
 export const resetGame = () => {
   el.shipsAndbuttonsContainer.classList.remove("cleared");
-
+  el.shipsContainer.classList.remove("cleared");
+  el.shipsTitle.classList.remove("cleared");
   el.confirmFleetBtn.classList.remove("hidden");
 
   document.querySelectorAll('[data-board="player1"]').forEach((cell) => {
@@ -182,7 +185,7 @@ export const resetGame = () => {
       "red",
       "yellow",
       "green",
-      "blue",
+      "blue"
     );
     if (["●", "❌", "☠️"].includes(cell.textContent)) cell.textContent = "";
   });
@@ -220,11 +223,11 @@ export const updateDOM = (
   boardEl,
   player,
   compRow = undefined,
-  compCol = undefined,
+  compCol = undefined
 ) => {
   const [row, col] = player.board.attackedIndices.at(-1);
   const cell = boardEl.querySelector(
-    `[data-row="${compRow ?? row}"][data-col="${compCol ?? col}"]`,
+    `[data-row="${compRow ?? row}"][data-col="${compCol ?? col}"]`
   );
   if (result === "missed") {
     cell.textContent = "●";
@@ -238,8 +241,8 @@ export const updateDOM = (
       .forEach(
         ([row, col]) =>
           (boardEl.querySelector(
-            `[data-row="${row}"][data-col="${col}"]`,
-          ).textContent = "☠️"),
+            `[data-row="${row}"][data-col="${col}"]`
+          ).textContent = "☠️")
       );
   }
 };
@@ -266,4 +269,3 @@ export const renderComputerAttackState = (el) => {
   }, 200);
   return interval;
 };
-
