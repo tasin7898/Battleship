@@ -11,8 +11,6 @@ import {
   resetGame,
   renderComputerAttackState,
 } from "./ui.js";
-import { Player, ComputerPlayer } from "../logic/player.js";
-import { Game } from "../logic/game.js";
 import { Ship } from "../logic/ship.js";
 import { player1, player2, startGame } from "../barrel.js";
 
@@ -99,11 +97,14 @@ export const initEvents = () => {
       player2.board.clear();
       player1.clearShips();
       player2.clearShips();
+      resetShipsOrientation();
+      document
+        .querySelectorAll(".ships")
+        .forEach((ship) => ship.classList.remove("hidden"));
       renderScoreBoard(el.player1ScoreBoard, player1, player2);
       renderScoreBoard(el.player2ScoreBoard, player2, player1);
       gameActive = null;
       el.restartBtn.classList.add("hidden");
-      
     }
 
     if (e.target === el.resetScoresBtn) {
@@ -115,15 +116,13 @@ export const initEvents = () => {
     }
 
     if (board === "player2" && gameActive) {
-     
-      gameActive = null;
 
       if (rowStr === undefined || colStr === undefined) return;
-       console.log("gg");
+      console.log("gg");
       const result = startGame.handleAttack(row, col);
-      if (!result) return;
+      if (result === undefined) return;
+      gameActive = null;
       const { resultP1, resultP2, winner } = result;
-
       updateDOM(resultP1, el.opponentBoard, player2);
       if (resultP1 instanceof Ship)
         renderScoreBoard(el.player1ScoreBoard, player1, player2);
@@ -142,7 +141,7 @@ export const initEvents = () => {
             if (resultP2 instanceof Ship)
               renderScoreBoard(el.player2ScoreBoard, player2, player1);
           }
-        }, 1000);
+        }, 10);
       }
       if (winner) {
         clearInterval(interval);

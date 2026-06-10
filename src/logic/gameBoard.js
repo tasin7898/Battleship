@@ -14,7 +14,7 @@ export class GameBoard {
       const peicesIdx = [];
       peicesIdx.push({ row, col });
       const shipObj = [...this.#ships].find(
-        (currShip) => currShip.ship === ship,
+        (currShip) => currShip.ship === ship
       );
       if (shipObj) shipObj.pos.push({ row, col });
       else this.#ships.add({ ship, pos: peicesIdx });
@@ -88,6 +88,7 @@ export class GameBoard {
 
   receiveAttack(row, col) {
     if (row > 9 || row < 0 || col > 9 || col < 0) return;
+    if (this.#attackedIdx.some(([r, c]) => r === row && c === col)) return;
     const attackPos = this.#board[row][col];
     if (attackPos === "") {
       this.#missIdx.push([row, col]);
@@ -111,13 +112,13 @@ export class GameBoard {
     if (attackPos.isSunk()) {
       this.#sunkShips.push(attackPos);
       const sunkIdx = [...this.#ships].find(
-        (currShip) => currShip.ship === attackPos,
+        (currShip) => currShip.ship === attackPos
       ).pos;
       sunkIdx.forEach(({ row, col }) => {
         this.#board[row][col] = "S";
       });
       this.#activeHitIdx = this.#activeHitIdx.filter(
-        ([r, c]) => !sunkIdx.some(({ row, col }) => r === row && c === col),
+        ([r, c]) => !sunkIdx.some(({ row, col }) => r === row && c === col)
       );
       return attackPos;
     }
@@ -163,7 +164,7 @@ export class GameBoard {
 
   removeShip(ship) {
     const deleteShip = [...this.#ships].find(
-      (currShip) => currShip.ship === ship,
+      (currShip) => currShip.ship === ship
     ).pos;
     deleteShip.forEach(({ row, col }) => (this.#board[row][col] = ""));
     this.#ships.delete([...this.#ships].find((entry) => entry.ship === ship));
